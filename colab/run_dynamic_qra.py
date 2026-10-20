@@ -2,7 +2,8 @@
 """
 One-command driver for the dynamic QRA package (stage 3 of the study).
 
-    python colab/run_dynamic_qra.py              # source terms -> consequence -> event tree / risk -> figures   (~2 min)
+    python colab/run_dynamic_qra.py              # source terms -> consequence -> far-field Gaussian -> event tree / risk -> figures   (~2 min)
+    bash colab/get_external_models.sh            # optional: clone two independent Gaussian codes for the model-comparison table
     python colab/run_dynamic_qra.py --updating   # also the Bayesian-updating demonstration (~6 min)
 
 Needs only the repository (the shipped results/ tables stand in for the pressure-model outputs when pressure_model/out is empty);
@@ -20,7 +21,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--updating', action='store_true', help='also run the Bayesian-updating demonstration')
     a = ap.parse_args()
-    for s in ('source_terms.py', 'consequence.py', 'risk.py'): run(s)
+    for s in ('source_terms.py', 'consequence.py', 'gaussian_farfield.py', 'risk.py'): run(s)
     if a.updating: run('updating.py')
     run('fig_qra.py')
     print('finished. Results: dynamic_qra/out, figures: dynamic_qra/fig')

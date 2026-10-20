@@ -1,29 +1,33 @@
 case,f_on,parameter,base,low,high
-1,1,ignition probability 0.005 / 0.05,0.005319,0.004802,0.006353
-1,1,worker ignition source 0 / 0.01,0.005319,0.005146,0.006011
-1,1,fatality given flash in the small plume 0.03 / 1.0,0.005319,0.004817,0.01177
-1,1,P(inside flammable plume at the valve) 0.03 / 0.3,0.005319,0.004834,0.006703
-1,1,responder goes to the roof 0.2 / 0.8 (day),0.005319,0.00207,0.008931
-1,1,time at the valve 2 / 15 min,0.005319,0.001289,0.02402
-1,1,prolonged stay in the H2S plume 0.005 / 0.3 (no detector),0.005319,0.002075,0.06586
-1,1,PVRV fouled by foam 0.03 / 0.3,0.005319,0.005125,0.005874
-1,1,weather: all D5 / all calm,0.005319,0.001422,0.02045
-1,1,routine presence x0 / x3,0.005319,0.005294,0.005369
-1,1,seal-failure injury 0.02 / 0.3,0.005319,0.005213,0.005583
-1,1,flare PFD 0.01 / 0.10,0.005319,0.001509,0.01049
-1,1,foaming 1 / 3 per year,0.005319,0.005127,0.005511
-1,1,hard-fault share 0 / 0.3,0.005319,0.005319,0.01098
-1,0.8,ignition probability 0.005 / 0.05,0.0006014,0.0004759,0.0008525
-1,0.8,worker ignition source 0 / 0.01,0.0006014,0.000578,0.000695
-1,0.8,fatality given flash in the small plume 0.03 / 1.0,0.0006014,0.0005695,0.001012
-1,0.8,P(inside flammable plume at the valve) 0.03 / 0.3,0.0006014,0.0005704,0.0006899
-1,0.8,responder goes to the roof 0.2 / 0.8 (day),0.0006014,0.000223,0.001071
-1,0.8,time at the valve 2 / 15 min,0.0006014,0.0003418,0.001819
-1,0.8,prolonged stay in the H2S plume 0.005 / 0.3 (no detector),0.0006014,0.0003924,0.004502
-1,0.8,PVRV fouled by foam 0.03 / 0.3,0.0006014,0.0004072,0.001156
-1,0.8,weather: all D5 / all calm,0.0006014,0.0003501,0.001567
-1,0.8,routine presence x0 / x3,0.0006014,0.0006,0.0006041
-1,0.8,seal-failure injury 0.02 / 0.3,0.0006014,0.0004958,0.0008654
-1,0.8,flare PFD 0.01 / 0.10,0.0006014,0.0006014,0.0006024
-1,0.8,foaming 1 / 3 per year,0.0006014,0.0004095,0.0007933
-1,0.8,hard-fault share 0 / 0.3,0.0006014,0.0006014,0.002186
+1,1,ignition probability 0.005 / 0.05,0.001319,0.0008017,0.002353
+1,1,worker ignition source 0 / 0.01,0.001319,0.001146,0.00201
+1,1,fatality given flash in the small plume 0.03 / 1.0,0.001319,0.0008167,0.007772
+1,1,P(inside flammable plume at the valve) 0.03 / 0.3,0.001319,0.0008342,0.002703
+1,1,responder goes to the roof 0.2 / 0.8 (day),0.001319,0.00052,0.002229
+1,1,time at the valve 2 / 15 min,0.001319,0.0006938,0.005899
+1,1,prolonged stay in the H2S plume 0.005 / 0.3 (no detector),0.001319,0.001075,0.005861
+1,1,PVRV fouled by foam 0.03 / 0.3,0.001319,0.001125,0.001873
+1,1,"H2S in the gas 500 ppm (in-situ desulphurisation) / 5,845 ppm (max)",0.001319,0.0009943,0.009806
+1,1,duty cycle ignored (time-mean plume) / pulses at full stay,0.001319,0.001007,0.00532
+1,1,weather: all D5 / all calm,0.001319,0.001001,0.00258
+1,1,routine presence x0 / x3,0.001319,0.001294,0.001368
+1,1,seal-failure injury 0.02 / 0.3,0.001319,0.001213,0.001583
+1,1,flare PFD 0.01 / 0.10,0.001319,0.0005286,0.002391
+1,1,foaming 1 / 3 per year,0.001319,0.00117,0.001468
+1,1,hard-fault share 0 / 0.3,0.001319,0.001319,0.002467
+1,0.8,ignition probability 0.005 / 0.05,0.0003404,0.0002149,0.0005915
+1,0.8,worker ignition source 0 / 0.01,0.0003404,0.000317,0.000434
+1,0.8,fatality given flash in the small plume 0.03 / 1.0,0.0003404,0.0003085,0.0007507
+1,0.8,P(inside flammable plume at the valve) 0.03 / 0.3,0.0003404,0.0003094,0.0004289
+1,0.8,responder goes to the roof 0.2 / 0.8 (day),0.0003404,0.0001253,0.0006136
+1,0.8,time at the valve 2 / 15 min,0.0003404,0.0003033,0.0006137
+1,0.8,prolonged stay in the H2S plume 0.005 / 0.3 (no detector),0.0003404,0.0003272,0.000587
+1,0.8,PVRV fouled by foam 0.03 / 0.3,0.0003404,0.0001462,0.0008952
+1,0.8,"H2S in the gas 500 ppm (in-situ desulphurisation) / 5,845 ppm (max)",0.0003404,0.0003228,0.0008475
+1,0.8,duty cycle ignored (time-mean plume) / pulses at full stay,0.0003404,0.0003234,0.0006015
+1,0.8,weather: all D5 / all calm,0.0003404,0.0003231,0.0004089
+1,0.8,routine presence x0 / x3,0.0003404,0.000339,0.0003431
+1,0.8,seal-failure injury 0.02 / 0.3,0.0003404,0.0002348,0.0006044
+1,0.8,flare PFD 0.01 / 0.10,0.0003404,0.0003404,0.0003406
+1,0.8,foaming 1 / 3 per year,0.0003404,0.0001915,0.0004893
+1,0.8,hard-fault share 0 / 0.3,0.0003404,0.0003404,0.0006633

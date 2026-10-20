@@ -87,6 +87,19 @@
   "v": 0.1,
   "src": "Assumption: share of the responders who are on the roof at the moment the seal fails (27 min after the blockage)"
  },
+ "yH2S_ppm": {
+  "v": 2527.0,
+  "src": "PyADM1ODE annual mean of the raw gas (930-5,845 ppm). If the plant desulphurises in the digester headspace (micro-aeration) the PVRV sees 200-500 ppm instead - the single most important composition parameter of the QRA"
+ },
+ "duty": {
+  "v": {
+   "R1 chatter (valve open)": 0.3120567375886525,
+   "R2 downstream stop": 0.599290780141844,
+   "R3 isolated digester": 0.2921985815602837,
+   "R5 blocked PVRV, continuous": 1.0
+  },
+  "src": "1-s model: every release is realised as pulses at the minimum stable opening (141 m3/h); duty = time-mean rate / 141. The H2S dose (probit exponent n = 1.9) uses duty x stay at the open-valve concentration, i.e. delta^(1-n) = 2.9x more than a time-mean plume would give for R1"
+ },
  "generic_f_pvrv": {
   "v": 0.01,
   "src": "Generic-QRA comparison: spurious / demand-driven PVRV opening 1e-2 per valve-year (CCPS-type initiating-event value), 2 valves"

@@ -10,3 +10,4 @@ bayesian_network/fig/
 .ipynb_checkpoints/
 dynamic_qra/out/
 dynamic_qra/fig/
+external/

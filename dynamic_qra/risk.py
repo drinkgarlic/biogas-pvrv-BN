@@ -45,6 +45,9 @@ QRA = {
     'p_fouled':      dict(v=0.10, src='Assumption: probability that foam reaching the digester outlet also fouls the PVRV. The BN uses 0.3 for the opening branch; 0.1 here keeps the seal-failure chain (0.6 x 0.1 x not prevented) near the EA 2019 incident base rate'),
     'p_injury_seal': dict(v=0.10, src='Assumption: fatality probability for a person on the roof at the moment a roof seal / manhole fails at 10 kPag'),
     'p_on_roof_at_failure': dict(v=0.1, src='Assumption: share of the responders who are on the roof at the moment the seal fails (27 min after the blockage)'),
+    'yH2S_ppm':      dict(v=2527.0, src='PyADM1ODE annual mean of the raw gas (930-5,845 ppm). If the plant desulphurises in the digester headspace (micro-aeration) the PVRV sees 200-500 ppm instead - the single most important composition parameter of the QRA'),
+    'duty':          dict(v={'R1 chatter (valve open)': 44.0 / 141.0, 'R2 downstream stop': 84.5 / 141.0, 'R3 isolated digester': 41.2 / 141.0, 'R5 blocked PVRV, continuous': 1.0},
+                          src='1-s model: every release is realised as pulses at the minimum stable opening (141 m3/h); duty = time-mean rate / 141. The H2S dose (probit exponent n = 1.9) uses duty x stay at the open-valve concentration, i.e. delta^(1-n) = 2.9x more than a time-mean plume would give for R1'),
     'generic_f_pvrv': dict(v=0.01, src='Generic-QRA comparison: spurious / demand-driven PVRV opening 1e-2 per valve-year (CCPS-type initiating-event value), 2 valves'),
     'generic_dur_h': dict(v=1.0, src='Generic-QRA comparison: assumed release duration'),
 }
@@ -53,14 +56,15 @@ BR = ['demand', 'stop', 'foam', 'block', 'wv']
 REL = {'demand': 'R1 chatter (valve open)', 'stop': 'R2 downstream stop', 'foam': 'R3 isolated digester', 'block': 'R3 isolated digester', 'wv': 'R1 chatter (valve open)'}
 WX = {'D5': ('D', 5.0), 'D3': ('D', 3.0), 'F2': ('F', 2.0), 'calm': (None, 0.5)}
 
-def effects(Q_m3h, wname):
+def effects(Q_m3h, wname, yH2S=None):
+    yH2S = cq.yH2S if yH2S is None else yH2S
     """(C at 1 m vol fraction, H2S ppm at 1 m, LFL distance) for a continuous release Q at the vent in weather class wname"""
     cls, u = WX[wname]; Q = Q_m3h / 3600
     if cls is None:
         c1 = float(cq.mtt_plume(Q, 1.0)[0]); z = np.linspace(0.3, 30, 300); c, _ = cq.mtt_plume(Q, z); xl = float(z[np.argmax(c < cq.LFL)]) if (c < cq.LFL).any() else 30.0
     else:
         c1 = float(cq.plume_centreline(Q, u, cls, 1.0)); xl = cq.dist_to(cq.LFL, Q, u, cls)
-    return c1, c1 * cq.yH2S * 1e6, xl
+    return c1, c1 * yH2S * 1e6, xl
 
 def fatality_tables(P):
     """P(fatality | exposure mode, release type, weather) from the consequence models and the QRA parameters"""
@@ -68,16 +72,17 @@ def fatality_tables(P):
     rates = {'R1 chatter (valve open)': 141.0, 'R2 downstream stop': 141.0, 'R3 isolated digester': 141.0, 'R5 blocked PVRV, continuous': 41.2}
     for rel, Qh in rates.items():
         for w in WX:
-            c1, h2s1, xl = effects(Qh, w)
-            t_h2s = P['t_at_valve_min']['v'] * P['p_in_plume_h2s']['v']                     # effective minutes inside the plume
+            yH2S = P['yH2S_ppm']['v'] * 1e-6; delta = P['duty']['v'][rel]
+            c1, h2s1, xl = effects(Qh, w, yH2S)
+            t_h2s = P['t_at_valve_min']['v'] * delta                                         # minutes of the stay during which the valve is actually open
             f_overlap = min(1.0, P['t_at_valve_min']['v'] / P['t_fix_min']['v'])            # share of the remaining release spent at the valve
             flash_resp = P['p_zone']['v'] * (P['p_ign_worker']['v'] + P['p_ign']['v'] * f_overlap) * P['p_fat_flash_small']['v']
-            h2s_resp = P['p_in_plume_h2s']['v'] * float(cq.h2s_probit_fatality(h2s1, max(P['t_at_valve_min']['v'], 0.1)))   # if inside the plume, the whole stay counts
+            h2s_resp = P['p_in_plume_h2s']['v'] * float(cq.h2s_probit_fatality(h2s1, max(t_h2s, 0.1)))   # inside the plume: dose at the open-valve concentration for duty x stay
             # location risk at lsir_distance_m: flash fire only if the LFL plume reaches that far, H2S for a 30-min stay in the plume
             xd = P['lsir_distance_m']['v']; cls, u = WX[w]; Q = Qh / 3600
             cd = float(cq.mtt_plume(Q, xd)[0]) if cls is None else float(cq.plume_centreline(Q, u, cls, xd))
-            lsir_ev = (P['p_zone']['v'] * P['p_ign']['v'] * P['p_fat_flash_small']['v'] if xl >= xd else 0.0) + P['p_in_plume_h2s']['v'] * float(cq.h2s_probit_fatality(cd * cq.yH2S * 1e6, 30.0))
-            tab[(rel, w)] = dict(C_1m=c1, H2S_1m_ppm=h2s1, LFL_m=xl, p_fat_responder=flash_resp + h2s_resp, p_fat_flash=flash_resp, p_fat_h2s=h2s_resp, H2S_lsir_ppm=cd * cq.yH2S * 1e6, p_fat_lsir_per_event=lsir_ev)
+            lsir_ev = (P['p_zone']['v'] * P['p_ign']['v'] * P['p_fat_flash_small']['v'] if xl >= xd else 0.0) + P['p_in_plume_h2s']['v'] * float(cq.h2s_probit_fatality(cd * yH2S * 1e6, 30.0 * delta))
+            tab[(rel, w)] = dict(C_1m=c1, H2S_1m_ppm=h2s1, LFL_m=xl, duty=delta, p_fat_responder=flash_resp + h2s_resp, p_fat_flash=flash_resp, p_fat_h2s=h2s_resp, H2S_lsir_ppm=cd * yH2S * 1e6, p_fat_lsir_per_event=lsir_ev)
     return tab
 
 def weather_mix(P, day):
@@ -115,7 +120,7 @@ def run_case(case, f_on, P=QRA, prm_over=None):
     pf5 = np.zeros(n)
     for w in WX:
         wd = np.where(day, weather_mix(P, True).get(w, 0.0), weather_mix(P, False).get(w, 0.0))
-        c1, h2s1, xl = effects(41.2, w)
+        c1, h2s1, xl = effects(41.2, w, P['yH2S_ppm']['v'] * 1e-6)
         pf5 += wd * (P['p_zone_R5']['v'] * (P['p_ign']['v'] + P['p_ign_worker']['v']) * P['p_fat_flash_R5']['v'] + P['p_in_plume_h2s']['v'] * float(cq.h2s_probit_fatality(h2s1, P['t_at_valve_min']['v'])))
     ir_R5 = p_R5 * p_roof * (P['p_on_roof_at_failure']['v'] * P['p_injury_seal']['v'] + pf5)
     out['p_R5'] = p_R5; out['IR_resp_R5'] = ir_R5; tot_resp += ir_R5
@@ -165,6 +170,8 @@ if __name__ == '__main__':
             ('P(inside flammable plume at the valve) 0.03 / 0.3', {'p_zone': 0.03}, {'p_zone': 0.3}), ('responder goes to the roof 0.2 / 0.8 (day)', {'p_roof_day': 0.2, 'p_roof_night': 0.1}, {'p_roof_day': 0.8, 'p_roof_night': 0.6}),
             ('time at the valve 2 / 15 min', {'t_at_valve_min': 2.0}, {'t_at_valve_min': 15.0}), ('prolonged stay in the H2S plume 0.005 / 0.3 (no detector)', {'p_in_plume_h2s': 0.005}, {'p_in_plume_h2s': 0.3}),
             ('PVRV fouled by foam 0.03 / 0.3', {'p_fouled': 0.03}, {'p_fouled': 0.3}),
+            ('H2S in the gas 500 ppm (in-situ desulphurisation) / 5,845 ppm (max)', {'yH2S_ppm': 500.0}, {'yH2S_ppm': 5845.0}),
+            ('duty cycle ignored (time-mean plume) / pulses at full stay', {'duty': {'R1 chatter (valve open)': 0.31 ** 0.9 * 0.31, 'R2 downstream stop': 0.6 ** 0.9 * 0.6, 'R3 isolated digester': 0.29 ** 0.9 * 0.29, 'R5 blocked PVRV, continuous': 1.0}}, {'duty': {'R1 chatter (valve open)': 1.0, 'R2 downstream stop': 1.0, 'R3 isolated digester': 1.0, 'R5 blocked PVRV, continuous': 1.0}}),
             ('weather: all D5 / all calm', {'weather_day': {'D5': 1.0}, 'weather_night': {'D5': 1.0}}, {'weather_day': {'calm': 1.0}, 'weather_night': {'calm': 1.0}}),
             ('routine presence x0 / x3', {'routine_day': 0.0}, {'routine_day': 0.036}), ('seal-failure injury 0.02 / 0.3', {'p_injury_seal': 0.02}, {'p_injury_seal': 0.3})]
     srows = []
