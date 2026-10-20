@@ -59,16 +59,23 @@ def ext_gpm_sigmas(cls, x):
     sy, sz = calc_sigmas(cat, np.asarray(x, float))
     return sy, sz
 
-def ext_gplume_sigmas(cls, x, u, h_s):
+def ext_gplume_sigmas(cls, x, u, z0=0.2):
+    """TNO 'farm' scheme, called with the package's own conventions (checked in dispersion_check.py): z0 is the ROUGHNESS LENGTH
+    (its docstring says 'source height', but its examples pass z0 = 0.2 next to a separate hs), tc = calculate_tc(dx, u) = dx/(3600 u).
+    sigma_y grows with travel time^0.35, i.e. it is a relative-diffusion (instantaneous plume) parameterisation, not a 10-min average"""
     p = os.path.join(EXT, 'gaussian-plume', 'src')
     if not os.path.exists(os.path.join(p, 'GaussianPlume', 'GPFunctions.py')): return None
     sys.path.insert(0, p); sys.path.insert(0, os.path.join(p, 'GaussianPlume'))      # the package uses bare intra-package imports
     import GPFunctions as GPF, GPConstants as GPC
     sys.path.pop(0); sys.path.pop(0)
     dc = GPC.dispersion_constants('farm'); idx = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5}[cls]
-    x = np.asarray(x, float); tc = x / (3600 * u)
-    sy, sz = GPF.calculate_sigma(x, h_s, tc, dc, idx)
+    x = np.asarray(x, float); tc = GPF.calculate_tc(x, u)
+    sy, sz = GPF.calculate_sigma(x, z0, tc, dc, idx)
     return sy, sz
+
+def gaussian_from_sigmas(Q, u, sy, sz, z_rec, h_s):
+    """the same elevated-source formula as gaussian(), for sigmas supplied by an external scheme"""
+    return np.minimum(1.0, Q / (2 * math.pi * u * sy * sz) * (np.exp(-(z_rec - h_s) ** 2 / (2 * sz ** 2)) + np.exp(-(z_rec + h_s) ** 2 / (2 * sz ** 2))))
 
 def main():
     yH2S = cq.yH2S; h_s = 18.25
@@ -90,12 +97,12 @@ def main():
         near = cq.plume_centreline(Q, u, cls, xs)
         gau = gaussian(Q, u, cls, xs, h_s, h_s, rise=False); gau_r = gaussian(Q, u, cls, xs, h_s, h_s, rise=True)
         d = {'x_m': xs, 'near-field integral plume (this work)': near * 1e2, 'Gaussian PG Briggs-rural, no rise (this work)': gau * 1e2, 'Gaussian PG + Briggs rise (this work)': gau_r * 1e2}
-        s = ext_gpm_sigmas(cls, xs)
+        s = ext_gpm_sigmas(cls, xs)                                   # same formula for every scheme (an earlier version used Q/(pi u sy sz) here: 2x)
         if s is not None:
-            sy, sz = s; d['Gaussian ISC3 PG (koaandmud/GPM)'] = np.minimum(1, Q / (math.pi * u * np.maximum(sy, 1e-3) * np.maximum(sz, 1e-3))) * 1e2
-        s = ext_gplume_sigmas(cls, xs, u, h_s)
+            sy, sz = s; d['Gaussian ISC3 PG (koaandmud/GPM)'] = gaussian_from_sigmas(Q, u, np.maximum(sy, 1e-3), np.maximum(sz, 1e-3), h_s, h_s) * 1e2
+        s = ext_gplume_sigmas(cls, xs, u)
         if s is not None:
-            sy, sz = s; d["Gaussian 'farm' scheme (gerritjandebruin/gaussian-plume)"] = np.minimum(1, Q / (math.pi * u * np.maximum(sy, 1e-3) * np.maximum(sz, 1e-3))) * 1e2
+            sy, sz = s; d["Gaussian TNO 'farm' scheme, z0 0.2 m (gerritjandebruin/gaussian-plume)"] = gaussian_from_sigmas(Q, u, np.maximum(sy, 1e-3), np.maximum(sz, 1e-3), h_s, h_s) * 1e2
         cdf = pd.DataFrame(d); cdf.insert(0, 'weather', wname); comp.append(cdf)
     comp = pd.concat(comp, ignore_index=True); comp.to_csv(os.path.join(OUT, 'model_comparison.csv'), index=False, float_format='%.4g')
     print('\nbiogas on the plume axis (vol %), 141 m3/h, receptor at the vent height:'); print(comp.round(4).to_string(index=False))
