@@ -23,8 +23,17 @@ against them and so that `bayesian_network/fig_onoff9.py` can draw the BN-vs-1-s
 | `bn_params_v4.json` | `run_onoff9.py` | all parameters with units and sources |
 | `bn_summary.json`, `bn_sensitivity_case1.csv`, `buffer_band.csv`, `bn_optional_nodes.csv`, `crit_weather.json` | v3 scripts | the earlier proportional-flare network and its studies |
 
+## dynamic_qra/
+| File | From | Content |
+|---|---|---|
+| `source_terms.csv`, `source_props.json`, `episodes_R1_f100.csv` | `source_terms.py` | release types R1-R5 (rate, duration, volume, composition), gas properties, the 104 chattering episodes of the flare-start-100 % runs |
+| `effect_distances.csv`, `puff_R5.csv`, `h2s_probit_table.csv` | `consequence.py` | LFL and H₂S distances per release type and weather class, the seal-failure puff, the probit table |
+| `fatality_table.csv`, `qra_params.json` | `risk.py` | fatality probabilities per exposure mode, all QRA parameters with sources |
+| `risk_summary.csv`, `risk_profiles.csv`, `risk_sensitivity.csv` | `risk.py` | annual IR / LSIR / emission per case, monthly and hour-of-day profiles, tornado |
+| `updating.csv` | `updating.py` | Bayesian updating of the flare PFD and the foaming rate, five synthetic years |
+
 ## figures/
 Key figures regenerated with the English-labelled scripts: base-year pressure behaviour and one day at 1 s (Case 1), the
 downstream-stop scan and the chattering comparison, the holder-kept-full year, the nine on/off cases (fill and openings,
 bar summary, one opening episode), and the BN results (DAG, breakdown by initiating event with variants, BN-vs-1-s comparison,
-weekly profile of Case 1).
+weekly profile of Case 1), and the dynamic QRA (event tree, IR by case, profiles, tornado, updating, consequence curves).

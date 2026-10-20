@@ -85,9 +85,12 @@ def slice_inference(case, q, fill, p_atm, demand, day, winter, prm, wv_prob):
     #   a share (1-p_hard) of the failures is transient (cleared by a retry); p_hard are hard faults (retries useless -> operator only)
     retry = ([(k * t_rt, (1 - ph_) * (1 - pfd) * pfd ** (k - 1)) for k in range(1, n_rt + 1)] + [(np.inf, (1 - ph_) * pfd ** n_rt + ph_)]) if t_rt > 0 else [(np.inf, 1.0)]
     recov = {}                                   # recovery time -> probability (R combined with the retries)
+    recov_op = {}                                # ... of which the operator arrives first (used by the QRA for responder exposure)
     for r, pr in R.items():
         for tk, pk in retry:
             e = min(r, tk); recov[e] = recov.get(e, 0.0) + pr * pk
+            if r < tk: recov_op[e] = recov_op.get(e, 0.0) + pr * pk
+            elif r == tk: recov_op[e] = recov_op.get(e, 0.0) + 0.5 * pr * pk     # simultaneous: half the weight
     # --- downstream stop: all production goes to the holder -> flare demand at indicated f_on -> failure (pfd) -> opening if the full + rigid phase is passed before recovery
     p_stop = (prm['lam_stop']['v'] + prm['lam_power']['v']) / 8760
     t_open = float(ph.t_full_h(fill, q, p_atm, case) + ph.t_rigid_h(case, q))
@@ -100,7 +103,8 @@ def slice_inference(case, q, fill, p_atm, demand, day, winter, prm, wv_prob):
                 end = min(D, t_on + e)                # downstream recovery or flare recovery, whichever is first
                 if t_open < end:
                     w = pb * pD * pe * pfd
-                    po += w; vent += w * (end - t_open) * q; dur += w * (end - t_open); iv.append((w, t_open, end))
+                    op = (recov_op.get(e, 0.0) / pe) if (t_on + e <= D) else 0.0     # share of this weight where the operator finds the valve venting
+                    po += w; vent += w * (end - t_open) * q; dur += w * (end - t_open); iv.append((w, t_open, end, op))
     out['stop'] = (p_stop, po, vent, dur, iv)
     # --- flare demand (indicated f_on = true fill f_on + bias): the consumer keeps taking 60 -> only the surplus (q - use) raises the holder and the pressure
     if demand > 0 and q > use:
@@ -110,7 +114,7 @@ def slice_inference(case, q, fill, p_atm, demand, day, winter, prm, wv_prob):
             t_o = float(ph.t_full_h(f0, q - use, p_atm, case) + ph.t_rigid_h(case, q - use))
             for e, pe in recov.items():
                 if t_o < e:
-                    w = pb * pe * pfd; po += w; vent += w * (e - t_o) * (q - use); dur += w * (e - t_o); iv.append((w, t_o, e))
+                    w = pb * pe * pfd; po += w; vent += w * (e - t_o) * (q - use); dur += w * (e - t_o); iv.append((w, t_o, e, recov_op.get(e, 0.0) / pe))
         out['demand'] = (float(demand), po, vent, dur, iv)
     else:
         out['demand'] = (0.0, 0.0, 0.0, 0.0, [])
@@ -119,23 +123,23 @@ def slice_inference(case, q, fill, p_atm, demand, day, winter, prm, wv_prob):
     po = vent = dur = 0.0; iv = []
     for r, pr in R.items():
         if t_o < r:
-            po += pr; vent += pr * (r - t_o) * q / 2; dur += pr * (r - t_o); iv.append((pr, t_o, r))
+            po += pr; vent += pr * (r - t_o) * q / 2; dur += pr * (r - t_o); iv.append((pr, t_o, r, 1.0))       # ends with the operator at the valve
     p_foam = prm['lam_foam']['v'] * prm['p_block_foam']['v'] / 8760
     nf = 1 - prm['p_pv_fouled']['v']
-    out['foam'] = (p_foam, po * nf, vent * nf, dur * nf, [(w * nf, a, b) for (w, a, b) in iv])
+    out['foam'] = (p_foam, po * nf, vent * nf, dur * nf, [(w * nf, a, b, op) for (w, a, b, op) in iv])
     p_blk = (prm['lam_cond']['v'] + prm['lam_xv']['v']) / 8760 + (prm['lam_freeze']['v'] / (90 * 24) if winter else 0.0)
     out['block'] = (p_blk, po, vent, dur, iv)
     # --- weight-loaded vent valve stuck (atmospheric ratchet within the latent period; the PVRV opens only if the pressure backup of the flare fails)
     p_wv = prm['lam_wv']['v'] / 8760
     L = prm['latent_wv_h']['v']
     bk = pfd if prm['pressure_backup']['v'] else 1.0   # without a pressure-based start (fill-level start only) there is no backup against the ratchet
-    iv = [(bk * wv_prob[0], L - wv_prob[2], L)] if wv_prob[0] > 0 else []
+    iv = [(bk * wv_prob[0], L - wv_prob[2], L, 1.0)] if wv_prob[0] > 0 else []          # found at the next inspection
     out['wv'] = (p_wv, bk * wv_prob[0], bk * wv_prob[1], bk * wv_prob[2], iv)
     return out
 
 def run_year(case, inp, prm=PARAMS, occupancy=False):
     n = len(inp['q'])
-    occ = np.zeros(n + 400)
+    occ = np.zeros(n + 400); occ_k = {k: np.zeros(n + 400) for k in ('stop', 'demand', 'foam', 'block', 'wv')}
     to, vent = ph.wv_stuck_ratchet(inp['p'], case, latent_h=int(prm['latent_wv_h']['v']))
     reach = ~np.isnan(to)
     rows = []
@@ -146,13 +150,15 @@ def run_year(case, inp, prm=PARAMS, occupancy=False):
         r = dict(h=h, q=inp['q'][h], fill=inp['fill'][h])
         for k, (pI, po, ve, du, iv) in o.items():
             r[f'p_{k}'] = pI * po; r[f'v_{k}'] = pI * ve; r[f'd_{k}'] = pI * du
+            r[f'o_{k}'] = pI * sum(w * (it[3] if len(it) > 3 else 0.0) for it in iv for w in [it[0]])   # P(operator arrives while the valve vents)
             if occupancy:
-                for (w, a, b) in iv:                 # distribute the open interval [h+a, h+b] over hourly bins -> probability of being open at that hour
-                    wa = pI * w
+                sk = 0.0
+                for it in iv:                        # distribute the open interval [h+a, h+b] over hourly bins -> probability of being open at that hour
+                    w, a, b = it[0], it[1], it[2]; wa = pI * w
                     for bn_ in range(int(np.floor(h + a)), int(np.floor(h + b)) + 1):
                         ov = min(h + b, bn_ + 1) - max(h + a, bn_)
                         if ov > 0:
-                            occ[bn_] += wa * ov
+                            occ[bn_] += wa * ov; occ_k[k][bn_] += wa * ov
         rows.append(r)
     df = pd.DataFrame(rows)
     df['p_open'] = df[[c for c in df.columns if c.startswith('p_')]].sum(axis=1)
@@ -161,6 +167,7 @@ def run_year(case, inp, prm=PARAMS, occupancy=False):
     df['ch4_kg'] = df['v_open'] * inp['yCH4'][:n] * 0.667
     if occupancy:
         df['p_state_open'] = occ[:n]            # probability that the PVRV is open at that hour
+        for k in occ_k: df[f's_{k}'] = occ_k[k][:n]   # ... by initiating event
     return df
 
 def summarize(df, prm=PARAMS):

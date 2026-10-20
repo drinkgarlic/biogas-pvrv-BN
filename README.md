@@ -13,6 +13,7 @@ Two questions are answered, one by each package.
 |---|---|---|---|
 | `pressure_model/` | *When* does the PVRV open, given production, holder fill, weather and downstream behaviour? | Lumped ideal-gas model, 1-s time step, one year (31.5 million steps) | < 1 min per year with numba, 12–25 min in pure Python |
 | `bayesian_network/` | *How often* per year, given uncertain initiating events, flare reliability and operator response? | One-hour-slice Bayesian network with exact enumeration, physics taken from the pressure model | about one minute for all nine cases |
+| `dynamic_qra/` | *So what* — what is the risk to the people who deal with a venting valve, hour by hour, and how does it move as records accumulate? | Event tree after "PVRV opens" (plume, flash fire, H₂S, exposure) integrated with the hourly BN output; Bayesian updating of the priors | about two minutes (+6 min for the updating demo) |
 
 Headline result: with the holder kept full (flare start at 100 %) the expected number of PVRV openings is 81 / 17 / 2.7 per year for operating pressures of 4.0 / 3.0 / 2.0 kPag, almost all of them caused by flare ignition failures. Starting the flare at 80 % fill or lower removes those openings entirely; what remains is 1.2–1.3 per year from events that do not involve the flare (condensate, freezing, foam, a stuck vent valve). Both tools agree on the ignition-failure branch: 79.7 / 15.8 / 1.3 expected openings from the BN against 80 / 21 / 3 realised openings in the 1-s simulation.
 
@@ -71,6 +72,7 @@ cd biogas-pvrv-BN
 pip install -r requirements.txt
 
 python colab/run_bayesian_network.py            # ~1 min: nine BN cases, sensitivity, figures
+python colab/run_dynamic_qra.py --updating      # ~8 min: event tree, risk integration, Bayesian updating, figures
 python colab/run_pressure_model.py --quick      # ~5 min with numba: full workflow on the first 30 days
 python colab/run_pressure_model.py              # the real thing: 19 one-year simulations + 9 event scans
 ```
@@ -176,6 +178,44 @@ If 30 % of the failures cannot be cleared by a retry the 80 % figure becomes 8.5
 
 ---
 
+## 5b. Package 3 — the dynamic QRA
+
+### 5b.1 Idea
+
+The first two packages say when the valve opens and how often. The third asks what that means for the people on the site, and it keeps the time axis all the way to the end: the hourly BN output is multiplied, hour by hour, by an event tree whose branches (weather, who is where, ignition, H₂S exposure) also depend on the hour. The result is an individual risk that has a monthly and an hour-of-day profile, not just an annual number, and whose priors can be updated as operating records come in. That is the sense in which the assessment is "dynamic" (Villa et al. 2016; Khakzad et al. 2013).
+
+Four cases are carried: operating pressure 4.0 and 2.0 kPag (Cases 1 and 3) × flare start at 100 % and 80 % fill. Case 2 and the 60 % level add nothing the other cases do not show.
+
+### 5b.2 How the code is organised
+
+**`source_terms.py`** — classifies the releases into five types and extracts their statistics. R1, the chattering release after a flare ignition failure with the holder full (per-episode duration, cycles, volume and composition from the 1-s runs: median 11.5 min, 23 cycles, 8 m³, 141 m³/h while the valve is open); R2, the continuous release after a downstream stop (production rate, 84 m³/h); R3, one digester isolated by foam, condensate, freezing or a shut-off valve (that digester's production, 41 m³/h, until the operator responds); R4, the stuck-vent-valve ratchet (a few m³); and R5, a fouled or stuck PVRV with no relief, in which the digester pressure rises at `k_iso · q/2 ≈ 11 kPa/h` until a roof seal fails (assumed at twice the design pressure, 27 min after the blockage) and 39 m³ of compressed headspace escapes followed by q/2 at roof level. Composition from PyADM1ODE: CH₄ 64 %, H₂S 2,500 ppm (930–5,850), relative density 0.80, LFL of the mixture 7.8 vol %.
+
+**`consequence.py`** — three analytical models, written so that PHAST or ALOHA can be used as a cross-check: a bent-over buoyant plume for continuous releases in wind (Pasquill–Gifford spread combined in quadrature with the plume's own entrainment, Briggs rise), a Morton–Taylor–Turner plume for calm air, and a 30-s transient treatment of the R5 depressurisation (the TNO instantaneous puff is reported as an upper bound). Effects: a person inside the LFL contour at ignition (flash fire) and the RIVM H₂S probit. The LFL plume reaches 1–3.3 m from the vent and is 0.1–0.4 m wide; H₂S on the axis is 200–1,400 ppm at 1 m and 30–220 ppm at 3 m. The hazard is therefore confined to the roof, and above all to the person who stands at the valve.
+
+**`risk.py`** — the event tree and the integration. `QRA` lists every parameter with its source or the word "assumption": weather mix by day/night, ignition probabilities (TNO Purple Book 0.02 per release, plus 0.002 for the worker's own sources), the probability of standing inside the sub-metre plume (0.1), the fatality given a flash in such a small plume (0.1), the probability of a prolonged stay in the H₂S plume despite a personal detector (0.02), the responder's probability of going up to the roof while the valve vents (0.5 day / 0.3 night), the routine inspection presence (0.012 of daytime hours) and the seal-failure chain for R5. The BN is run inside with two extra outputs added for this purpose: `o_k(h)`, the probability that the operator reaches the valve while it is still venting, and `s_k(h)`, the state probability by initiating event. The script writes the hourly risk, the annual summary, the monthly and hour-of-day profiles, a generic-frequency QRA for comparison (1 × 10⁻² spurious openings per valve-year, no time structure) and a tornado over both the QRA and the BN parameters.
+
+**`updating.py`** — Beta and Gamma conjugate updating of the flare PFD and the foaming rate with five years of synthetic records drawn at three "true" values, re-evaluating the risk with the posterior mean and the 5–95 % quantiles.
+
+### 5b.3 What it found
+
+| Case | Flare start | PVRV openings /yr | IR of the responding operator /yr | of which ignition-failure chatter | of which digester isolation (foam, condensate, freezing) | of which blocked PVRV → seal failure | CH₄ vented kg/yr |
+|---|---|---|---|---|---|---|---|
+| 1 (4.0 kPag) | 100 % | 81.4 | 5.3 × 10⁻³ | 4.7 × 10⁻³ | 3.1 × 10⁻⁴ | 2.8 × 10⁻⁴ | 312 |
+| 1 (4.0 kPag) | 80 % | 1.3 | 6.0 × 10⁻⁴ | ~0 | 3.1 × 10⁻⁴ | 2.8 × 10⁻⁴ | 63 |
+| 3 (2.0 kPag) | 100 % | 2.7 | 5.9 × 10⁻⁴ | ~0 | 3.0 × 10⁻⁴ | 2.8 × 10⁻⁴ | 65 |
+| 3 (2.0 kPag) | 80 % | 1.2 | 5.8 × 10⁻⁴ | ~0 | 3.0 × 10⁻⁴ | 2.8 × 10⁻⁴ | 58 |
+| generic-frequency QRA | — | 0.02 | 5 × 10⁻⁶ | — | — | — | — |
+
+Three things stand out. Holder-full operation at 4.0 kPag puts the responding operator above the HSE "intolerable" line for workers (10⁻³ per year), and almost all of it is the H₂S exposure of someone who climbs to a chattering valve about eight times a year; a lower operating pressure or an 80 % flare start brings the figure down by a factor of nine, into the ALARP band, where the residual is shared between the single-digester isolation events and the rare seal failure. The generic-frequency QRA is three orders of magnitude lower than the dynamic one for the same plant, which is the HAZID finding ("PVRV release frequency is underestimated by generic data") in numbers. And the profile matters: in the 100 % case the risk sits in the high-production months and in the day shift, when the operator is most likely to respond; in the 80 % case it is flat through the year.
+
+The tornado says which assumptions carry the result. For the 100 % case they are the probability and duration of a stay in the H₂S plume, the weather mix (calm air gives the highest concentrations at the vent) and the flare PFD; for the 80 % case they are the hard-fault share of ignition failures, the foaming frequency and the seal-failure chain. None of the roof-geometry assumptions change the ranking of the cases.
+
+### 5b.4 What to do with it
+
+The event tree turns the BN's recommendations into risk terms: start the flare at 80 % or lower, keep the automatic retry, and — new from the QRA — treat a venting PVRV as an H₂S hazard: a personal detector, no approach without it, and a procedure that restarts the flare from the control room before anyone climbs the digester. Those three lines are worth more than any operating-pressure change.
+
+---
+
 ## 6. Reproducing the study exactly
 
 The drivers in `colab/` issue the same commands, in the same order, as the study:
@@ -187,6 +227,7 @@ pressure_model:  run_base.py {1,2,3}
                  run_full100.py {1,2,3} 0.05;  run_full100.py 1 0.0;  sum_full100.py
                  run_onoff.py {1,2,3} {1.0,0.8,0.6} 0.05;  run_onoff.py 1 {1.0,0.8,0.6} 0.0;  sum_onoff.py;  fig_episode.py
 bayesian_network: run_onoff9.py;  sens_v4.py;  fig_onoff9.py   (optionally make_v3_inputs.py, pv_bn.py, bn_sens_figs.py, buffer_band.py, crit_weather.py)
+dynamic_qra:      source_terms.py;  consequence.py;  risk.py;  updating.py;  fig_qra.py
 ```
 
 All random draws use a fixed seed, so the numbers in `results/` should come back to the last digit on any machine. The reference tables kept in `results/` are `summary_base.csv`, `summary_stop.csv`, `full100_summary.csv`, `onoff_summary.csv`, `onoff_f100_failures.csv`, `bn_onoff_9cases.csv`, `bn_sens_v4_case1_f100.csv`, `bn_sens_v4_case1_f80.csv` and `bn_summary.json`, next to the key figures.
@@ -204,6 +245,8 @@ Read these before quoting a number.
 - **Several BN priors are judgement.** Downstream stops, condensate and shut-off-valve blockages, vent-valve sticking and the operator response distribution have no public frequency data; sources and the word "assumption" are attached to each value in `PARAMS`, and the tornado figures show how far each one can move the result.
 - **Initiating events are independent and the slices are static.** Common causes (a cold snap freezing the vent valve, the flare and a drain line at once) are only partly captured by the winter node, and a slice does not change the prior of the next one.
 - **One year, one site.** The PyADM1ODE production and the Pohang weather are a single realisation; other feedstocks, holder sizes or climates need their own input files, which is exactly what `data/` is for.
+- **The QRA exposure model is judgement.** How often the operator climbs to a venting valve, how long they stay, whether they stand in the plume, whether they carry a detector — none of this has site data behind it yet. The tornado shows the result moves by an order of magnitude within plausible ranges; the ranking of the cases does not.
+- **The consequence models are analytical.** Near-field plume, calm plume and a transient treatment of the seal-failure puff; they are meant to be cross-checked with PHAST or ALOHA for a few points, not to replace them.
 - **No validation against measured valve openings at this plant.** The cross-check is between the two models (79.7 / 15.8 / 1.3 vs 80 / 21 / 3) and against the orders of magnitude reported for European plants, not against site measurements.
 
 ---

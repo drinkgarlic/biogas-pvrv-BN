@@ -8,3 +8,5 @@ bayesian_network/out/
 bayesian_network/fig/
 *.log
 .ipynb_checkpoints/
+dynamic_qra/out/
+dynamic_qra/fig/
