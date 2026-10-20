@@ -33,18 +33,32 @@ QRA = {
     'p_fat_flash_R5': dict(v=1.0, src='TNO Green Book: fatality 1.0 inside the flash-fire envelope of the 30-s depressurisation cloud (LFL 6-13 m)'),
     'p_zone':        dict(v=0.10, src='Assumption from the plume geometry (radius 0.1-0.4 m at the LFL distance): probability that a person at 1 m from the vent is inside the flammable plume'),
     'p_zone_R5':     dict(v=0.50, src='Assumption: the 30-s depressurisation cloud (LFL 6-13 m) covers most of the roof'),
-    'p_zone_routine': dict(v=0.03, src='Assumption: random position on the roof (radius ~10 m) vs. a plume a few metres long'),
+    'p_near_valve_routine': dict(v=0.3, src='Assumption: share of the routine time on the roof spent within a few metres of the PVRV (the valve is one of the items of the round)'),
     't_at_valve_min': dict(v=5.0, src='Assumption: minutes a responding operator spends at a venting valve'),
     't_fix_min':     dict(v=15.0, src='Assumption: minutes from arrival until the venting is stopped (flare restart, bypass, clearing the blockage)'),
     'p_in_plume_h2s': dict(v=0.02, src='Assumption: probability that the visit involves a prolonged stay inside the H2S plume (downwind of the vent, leaning over it) despite the personal H2S alarm (10 ppm) that plant staff carry; 0.1-0.3 without a detector (tornado)'),
     'lsir_distance_m': dict(v=3.0, src='Location-specific IR evaluated for a permanent presence 3 m from the vent (roof walkway)'),
-    'p_roof_day':    dict(v=0.5, src='Assumption: probability that the responding operator goes up to the digester roof while the valve vents (day)'),
-    'p_roof_night':  dict(v=0.3, src='Assumption: same at night'),
-    'routine_day':   dict(v=0.012, src='Assumption: daily 5-min inspection at each PVRV + 24 h/yr maintenance, within the daytime hours (08-20)'),
-    'routine_night': dict(v=0.0, src='Assumption: no routine presence at night'),
+    # ---- detection -> diagnosis -> action, per initiating event (what the operator sees, what it means, where they go)
+    'detection':     dict(v={'demand': 'flare controller: ignition-failure alarm within ~1 min', 'stop': 'consumer trip alarm, immediate',
+                            'foam': 'PAH on PT-101 of that digester (set 4.8 kPag) ~4 min after the blockage, 1-2 min before the valve opens', 'block': 'same as foam',
+                            'wv': 'no direct signal; holder pressure trend if a transmitter exists, otherwise the weekly round', 'R5': 'PT-101 above the PVRV setting and still rising = the valve is not relieving'},
+                          src='Plant instrumentation (ISO-BG-001 REV.1): PT-101A/B, holder level, flare and consumer status. The PVRV itself has no position switch and there is no gas detector at the vent'),
+    'action':        dict(v={'demand': 'control-room restart (same as the automatic retry); if it fails, to the FLARE, not the digester roof', 'stop': 'manual flare start from the control room',
+                            'foam': 'field check of the digester: sight glass, condensate pot, XV, PVRV - all on the roof', 'block': 'same as foam',
+                            'wv': 'inspection at the holder; digester roof only if PT-101 is high', 'R5': 'stop feeding and open the manual vent ON THE ROOF within the 27 min to seal failure'},
+                          src='Assumption'),
+    'p_roof':        dict(v={'demand': (0.10, 0.05), 'stop': (0.10, 0.05), 'foam': (0.70, 0.50), 'block': (0.70, 0.50), 'wv': (0.30, 0.20)},
+                          src='Assumption (day, night): probability that the response puts the operator on the digester roof while the valve is still venting, following the action column above'),
+    'n_responders':  dict(v=3, src='Assumption: one field operator per shift, three shifts; a given individual answers one third of the alarms. IR_worker = PLL_resp / 3 + routine (the 2 h/week are assigned to one person)'),
+    'control_room':  dict(v='24 h, three shifts', src='Assumption; the night response distribution R_night (BN) applies 20-08 h'),
+    'PAH_kPag':      dict(v=4.8, src='Assumption: high-pressure alarm on PT-101 at 4.8 kPag (0.25 kPa below the PVRV opening pressure 5.05)'),
+    'routine_h_per_week': dict(v=2.0, src='User: about 2 h/week of regular work on the digester roofs, in the day shift (08-20, 7 days)'),
     'p_fouled':      dict(v=0.10, src='Assumption: probability that foam reaching the digester outlet also fouls the PVRV. The BN uses 0.3 for the opening branch; 0.1 here keeps the seal-failure chain (0.6 x 0.1 x not prevented) near the EA 2019 incident base rate'),
-    'p_injury_seal': dict(v=0.10, src='Assumption: fatality probability for a person on the roof at the moment a roof seal / manhole fails at 10 kPag'),
-    'p_on_roof_at_failure': dict(v=0.1, src='Assumption: share of the responders who are on the roof at the moment the seal fails (27 min after the blockage)'),
+    'p_injury_seal': dict(v=0.10, src='Assumption: fatality for a person on the roof when the seal / manhole lets go at 10 kPag (blow-out, fall from the roof edge, engulfment); the flash fire of the 30-s cloud is counted separately (p_zone_R5, p_fat_flash_R5)'),
+    'p_vent_fouled': dict(v=0.3, src='Assumption: probability that the manual vent on the same roof is fouled by the same foam as the PVRV, so that opening it does not relieve the digester (the operator is then on the roof when the seal fails)'),
+    't_open_vent_min': dict(v=3.0, src='Assumption: minutes from arrival on the roof to an open manual vent; arrivals within the response bucket R(<= 0.5 h) are taken uniform between 5 and 30 min, so the share arriving too late is t_open / 25'),
+    'p_seal_kPag':   dict(v=10.0, src='Seal / manhole failure taken at twice the design pressure of the digester roof (5.0 kPag); the window from the PAH to failure is (10 - 4.8) / (0.266 x 41.2) = 28.5 min'),
+    't_vent_manual_min': dict(v=15.0, src='Assumption: minutes the operator stays beside the manual vent after opening it (41 m3/h, continuous) until the feed stop brings the pressure down'),
     'yH2S_ppm':      dict(v=2527.0, src='PyADM1ODE annual mean of the raw gas (930-5,845 ppm). If the plant desulphurises in the digester headspace (micro-aeration) the PVRV sees 200-500 ppm instead - the single most important composition parameter of the QRA'),
     'duty':          dict(v={'R1 chatter (valve open)': 44.0 / 141.0, 'R2 downstream stop': 84.5 / 141.0, 'R3 isolated digester': 41.2 / 141.0, 'R5 blocked PVRV, continuous': 1.0},
                           src='1-s model: every release is realised as pulses at the minimum stable opening (141 m3/h); duty = time-mean rate / 141. The H2S dose (probit exponent n = 1.9) uses duty x stay at the open-valve concentration, i.e. delta^(1-n) = 2.9x more than a time-mean plume would give for R1'),
@@ -82,7 +96,11 @@ def fatality_tables(P):
             xd = P['lsir_distance_m']['v']; cls, u = WX[w]; Q = Qh / 3600
             cd = float(cq.mtt_plume(Q, xd)[0]) if cls is None else float(cq.plume_centreline(Q, u, cls, xd))
             lsir_ev = (P['p_zone']['v'] * P['p_ign']['v'] * P['p_fat_flash_small']['v'] if xl >= xd else 0.0) + P['p_in_plume_h2s']['v'] * float(cq.h2s_probit_fatality(cd * yH2S * 1e6, 30.0 * delta))
-            tab[(rel, w)] = dict(C_1m=c1, H2S_1m_ppm=h2s1, LFL_m=xl, duty=delta, p_fat_responder=flash_resp + h2s_resp, p_fat_flash=flash_resp, p_fat_h2s=h2s_resp, H2S_lsir_ppm=cd * yH2S * 1e6, p_fat_lsir_per_event=lsir_ev)
+            # routine coincidence: one hour of work near a venting valve (ignition of the whole release, H2S dose for 60 min x duty)
+            flash_hour = P['p_zone']['v'] * (P['p_ign_worker']['v'] + P['p_ign']['v']) * P['p_fat_flash_small']['v']
+            h2s_hour = P['p_in_plume_h2s']['v'] * float(cq.h2s_probit_fatality(h2s1, max(60.0 * delta, 0.1)))
+            tab[(rel, w)] = dict(C_1m=c1, H2S_1m_ppm=h2s1, LFL_m=xl, duty=delta, p_fat_responder=flash_resp + h2s_resp, p_fat_flash=flash_resp, p_fat_h2s=h2s_resp, p_fat_routine_hour=flash_hour + h2s_hour,
+                                H2S_lsir_ppm=cd * yH2S * 1e6, p_fat_lsir_per_event=lsir_ev)
     return tab
 
 def weather_mix(P, day):
@@ -101,36 +119,43 @@ def run_case(case, f_on, P=QRA, prm_over=None):
     tot_resp = np.zeros(n); tot_rout = np.zeros(n); tot_lsir = np.zeros(n)
     for k in BR:
         rel = REL[k]
-        p_roof = np.where(day, P['p_roof_day']['v'], P['p_roof_night']['v']); rout = np.where(day, P['routine_day']['v'], P['routine_night']['v'])
-        pf_resp = np.zeros(n); pf_lsir = np.zeros(n)
+        p_roof = np.where(day, P['p_roof']['v'][k][0], P['p_roof']['v'][k][1])
+        rout = np.where(day, P['routine_h_per_week']['v'] / (12.0 * 7.0), 0.0)               # share of the daytime hours spent on the roof
+        pf_resp = np.zeros(n); pf_lsir = np.zeros(n); pf_hour = np.zeros(n)
         for w in WX:
             wd = np.where(day, weather_mix(P, True).get(w, 0.0), weather_mix(P, False).get(w, 0.0))
-            pf_resp += wd * ft[(rel, w)]['p_fat_responder']; pf_lsir += wd * ft[(rel, w)]['p_fat_lsir_per_event']
-        dur = np.where(df[f'p_{k}'] > 0, df[f'd_{k}'] / np.maximum(df[f'p_{k}'], 1e-12), 1.0)          # expected duration per event (h)
-        ir_resp = df[f'o_{k}'].to_numpy() * p_roof * pf_resp
-        ir_rout = df[f's_{k}'].to_numpy() * rout * P['p_zone_routine']['v'] * P['p_ign']['v'] * P['p_fat_flash_small']['v'] / np.maximum(dur, 0.1)
+            pf_resp += wd * ft[(rel, w)]['p_fat_responder']; pf_lsir += wd * ft[(rel, w)]['p_fat_lsir_per_event']; pf_hour += wd * ft[(rel, w)]['p_fat_routine_hour']
+        ir_resp = df[f'o_{k}'].to_numpy() * p_roof * pf_resp                                                 # alarm -> response puts someone on the roof while venting
+        ir_rout = df[f's_{k}'].to_numpy() * rout * P['p_near_valve_routine']['v'] * pf_hour                 # hours (valve open AND routine work on the roof AND near the valve) x fatality per such hour
         lsir = df[f'p_{k}'].to_numpy() * pf_lsir
         out[f'IR_resp_{k}'] = ir_resp; out[f'IR_rout_{k}'] = ir_rout; out[f'LSIR_{k}'] = lsir
         tot_resp += ir_resp; tot_rout += ir_rout; tot_lsir += lsir
     # R5: foam reaches the outlet AND fouls the PVRV -> no relief -> seal failure unless the operator intervenes within 30 min
     p_foam_h = prm['lam_foam']['v'] * prm['p_block_foam']['v'] / 8760
-    p_prevent = np.where(day, prm['R_day']['v'][0.5], prm['R_night']['v'][0.5])
-    p_R5 = p_foam_h * P['p_fouled']['v'] * (1 - p_prevent)
-    p_roof = np.where(day, P['p_roof_day']['v'], P['p_roof_night']['v'])
-    pf5 = np.zeros(n)
+    p_arrive = np.where(day, prm['R_day']['v'][0.5], prm['R_night']['v'][0.5])   # response (arrival on the roof) within the alarm-to-failure window (28.5 min ~ the 0.5 h bucket of R)
+    late = P['t_open_vent_min']['v'] / 25.0                                      # arrived, but the vent is not open before the seal fails
+    p_prevent = p_arrive * (1 - P['p_vent_fouled']['v']) * (1 - late)           # manual vent opened in time and relieving
+    p_onroof = p_arrive * (P['p_vent_fouled']['v'] + (1 - P['p_vent_fouled']['v']) * late)   # on the roof when the seal lets go
+    p_init = p_foam_h * P['p_fouled']['v']                                      # PVRV cannot relieve, pressure rising at 41 m3/h
+    p_R5 = p_init * (1 - p_prevent)                                             # seal failure
+    pf_vent = np.zeros(n); pf5 = np.zeros(n)
     for w in WX:
         wd = np.where(day, weather_mix(P, True).get(w, 0.0), weather_mix(P, False).get(w, 0.0))
         c1, h2s1, xl = effects(41.2, w, P['yH2S_ppm']['v'] * 1e-6)
-        pf5 += wd * (P['p_zone_R5']['v'] * (P['p_ign']['v'] + P['p_ign_worker']['v']) * P['p_fat_flash_R5']['v'] + P['p_in_plume_h2s']['v'] * float(cq.h2s_probit_fatality(h2s1, P['t_at_valve_min']['v'])))
-    ir_R5 = p_R5 * p_roof * (P['p_on_roof_at_failure']['v'] * P['p_injury_seal']['v'] + pf5)
+        # (a) prevented: the operator opens the manual vent on the roof and stays beside it (41 m3/h, continuous) for t_vent_manual
+        pf_vent += wd * (P['p_zone']['v'] * (P['p_ign_worker']['v'] + P['p_ign']['v']) * P['p_fat_flash_small']['v'] + P['p_in_plume_h2s']['v'] * float(cq.h2s_probit_fatality(h2s1, P['t_vent_manual_min']['v'])))
+        # (b) not prevented: 30-s depressurisation cloud over the roof (flash fire) + the mechanical failure itself
+        pf5 += wd * P['p_zone_R5']['v'] * (P['p_ign']['v'] + P['p_ign_worker']['v']) * P['p_fat_flash_R5']['v']
+    ir_R5 = p_init * (p_prevent * pf_vent + p_onroof * (P['p_injury_seal']['v'] + pf5))
     out['p_R5'] = p_R5; out['IR_resp_R5'] = ir_R5; tot_resp += ir_R5
     out['LSIR_R5'] = p_R5 * (P['p_zone_R5']['v'] * P['p_ign']['v'] * P['p_fat_flash_R5']['v']); tot_lsir += out['LSIR_R5']
-    out['IR_resp'] = tot_resp; out['IR_rout'] = tot_rout; out['IR_total'] = tot_resp + tot_rout; out['LSIR'] = tot_lsir
+    out['IR_resp'] = tot_resp; out['IR_rout'] = tot_rout; out['IR_total'] = tot_resp + tot_rout; out['LSIR'] = tot_lsir       # IR_total = PLL over everyone who responds or works on the roof
+    out['IR_worker'] = tot_resp / P['n_responders']['v'] + tot_rout                                                        # the most exposed individual: 1/3 of the alarms + all the routine roof work
     return out, ft
 
 def summarize(out, case, f_on):
     s = dict(case=case, f_on=f_on, openings=out['p_open'].sum(), R5_events=out['p_R5'].sum(), open_h=out['p_state_open'].sum(), vent_m3=out['v_open'].sum(), ch4_kg=out['ch4_kg'].sum(),
-             IR_resp=out['IR_resp'].sum(), IR_rout=out['IR_rout'].sum(), IR_total=out['IR_total'].sum(), LSIR=out['LSIR'].sum())
+             IR_resp=out['IR_resp'].sum(), IR_rout=out['IR_rout'].sum(), IR_total=out['IR_total'].sum(), IR_worker=out['IR_worker'].sum(), LSIR=out['LSIR'].sum())
     for k in BR + ['R5']:
         s[f'IR_resp_{k}'] = out[f'IR_resp_{k}'].sum()
     s['IR_day'] = out.loc[out.day, 'IR_total'].sum(); s['IR_night'] = out.loc[~out.day, 'IR_total'].sum()
@@ -141,17 +166,46 @@ def generic_qra(P=QRA):
     f = P['generic_f_pvrv']['v'] * 2
     ft = fatality_tables(P)
     pf = sum(0.5 * weather_mix(P, True).get(w, 0) * ft[('R2 downstream stop', w)]['p_fat_responder'] + 0.5 * weather_mix(P, False).get(w, 0) * ft[('R2 downstream stop', w)]['p_fat_responder'] for w in WX)
-    p_roof = 0.5 * P['p_roof_day']['v'] + 0.5 * P['p_roof_night']['v']
+    p_roof = 0.5 * P['p_roof']['v']['stop'][0] + 0.5 * P['p_roof']['v']['stop'][1]
     lsir = sum(0.5 * weather_mix(P, True).get(w, 0) * ft[('R2 downstream stop', w)]['p_fat_lsir_per_event'] + 0.5 * weather_mix(P, False).get(w, 0) * ft[('R2 downstream stop', w)]['p_fat_lsir_per_event'] for w in WX)
     return dict(openings=f, IR_resp=f * p_roof * pf, LSIR=f * lsir, vent_m3=f * 84.5 * P['generic_dur_h']['v'])
 
+def with_direct_indication(P=QRA):
+    """design option: PVRV position switch or a fixed CH4/H2S detector at the vent. The operator knows the valve is venting,
+    so nobody climbs to a venting valve without protection: roof presence while venting x0.2, prolonged stay in the plume x0.25"""
+    P2 = copy.deepcopy(P)
+    P2['p_roof']['v'] = {k: (v[0] * 0.2, v[1] * 0.2) for k, v in P['p_roof']['v'].items()}
+    P2['p_in_plume_h2s']['v'] = P['p_in_plume_h2s']['v'] * 0.25
+    return P2
+
+def with_second_relief(P=QRA):
+    """design option: an independent second relief path (second PVRV or rupture disc on its own nozzle, or a remotely operated vent valve).
+    Common-cause fouling of both devices by the same foam: beta = 0.1; nobody needs to open a manual vent on the roof"""
+    P2 = copy.deepcopy(P)
+    P2['p_fouled']['v'] = P['p_fouled']['v'] * 0.1
+    P2['p_vent_fouled']['v'] = 0.0
+    return P2
+
+def warning_times(P=QRA):
+    """minutes between the PAH alarm and the PVRV opening, by case and net inflow (holder full: k_full; one digester blocked: k_iso)"""
+    rows = []
+    for case, p_op in ((1, 4.0), (2, 3.0), (3, 2.0)):
+        for q_net, k, what in ((25.0, 0.0803, 'holder full, surplus 25 m3/h (production 85)'), (55.0, 0.0803, 'holder full, surplus 55 m3/h (production 115)'), (41.2, 0.266, 'one digester blocked, 41 m3/h')):
+            t_alarm = (P['PAH_kPag']['v'] - p_op) / (k * q_net) * 60; t_open = (5.05 - p_op - 0.11) / (k * q_net) * 60
+            rows.append(dict(case=case, p_op=p_op, situation=what, t_alarm_min=t_alarm, t_open_min=t_open, warning_min=t_open - t_alarm))
+    return pd.DataFrame(rows)
+
 if __name__ == '__main__':
     rows = []; profiles = {}
+    wt = warning_times(); wt.to_csv(os.path.join(OUT, 'alarm_warning_times.csv'), index=False, float_format='%.1f'); print(wt.round(1).to_string(index=False))
     for case, f_on in CASES:
         out, ft = run_case(case, f_on)
         out.to_csv(os.path.join(OUT, f'risk_hourly_case{case}_f{int(f_on * 100)}.csv.gz'), index=False, float_format='%.6g')
         rows.append(summarize(out, case, f_on)); profiles[(case, f_on)] = out
         print(f'Case {case}, flare start {int(f_on * 100)} %: openings {rows[-1]["openings"]:.2f}, IR responder {rows[-1]["IR_resp"]:.2e}, routine {rows[-1]["IR_rout"]:.2e}, LSIR(1 m) {rows[-1]["LSIR"]:.2e}', flush=True)
+    for name, fn in (('direct indication', with_direct_indication), ('second relief', with_second_relief), ('both', lambda P=QRA: with_second_relief(with_direct_indication(P)))):
+        for case, f_on in CASES:                                   # design options: A) direct indication of a venting PVRV, B) independent second relief path, A+B
+            s_ = summarize(run_case(case, f_on, fn())[0], case, f_on); s_['case'] = f'{case} + {name}'; rows.append(s_)
     r = pd.DataFrame(rows); g = generic_qra(); g.update(case='generic', f_on=np.nan); r = pd.concat([r, pd.DataFrame([g])], ignore_index=True)
     r.to_csv(os.path.join(OUT, 'risk_summary.csv'), index=False, float_format='%.4g')
     pd.set_option('display.width', 250); print(r.round(10).to_string(index=False))
@@ -167,13 +221,15 @@ if __name__ == '__main__':
     # tornado on the QRA assumptions, Case 1 x (100 %, 80 %)
     SENS = [('ignition probability 0.005 / 0.05', {'p_ign': 0.005}, {'p_ign': 0.05}), ('worker ignition source 0 / 0.01', {'p_ign_worker': 0.0}, {'p_ign_worker': 0.01}),
             ('fatality given flash in the small plume 0.03 / 1.0', {'p_fat_flash_small': 0.03}, {'p_fat_flash_small': 1.0}),
-            ('P(inside flammable plume at the valve) 0.03 / 0.3', {'p_zone': 0.03}, {'p_zone': 0.3}), ('responder goes to the roof 0.2 / 0.8 (day)', {'p_roof_day': 0.2, 'p_roof_night': 0.1}, {'p_roof_day': 0.8, 'p_roof_night': 0.6}),
+            ('P(inside flammable plume at the valve) 0.03 / 0.3', {'p_zone': 0.03}, {'p_zone': 0.3}), ('responder goes to the roof: all branches x0.5 / x2 (capped at 1)', {'p_roof': {k: (v[0] * 0.5, v[1] * 0.5) for k, v in QRA['p_roof']['v'].items()}}, {'p_roof': {k: (min(1, v[0] * 2), min(1, v[1] * 2)) for k, v in QRA['p_roof']['v'].items()}}),
             ('time at the valve 2 / 15 min', {'t_at_valve_min': 2.0}, {'t_at_valve_min': 15.0}), ('prolonged stay in the H2S plume 0.005 / 0.3 (no detector)', {'p_in_plume_h2s': 0.005}, {'p_in_plume_h2s': 0.3}),
             ('PVRV fouled by foam 0.03 / 0.3', {'p_fouled': 0.03}, {'p_fouled': 0.3}),
             ('H2S in the gas 500 ppm (in-situ desulphurisation) / 5,845 ppm (max)', {'yH2S_ppm': 500.0}, {'yH2S_ppm': 5845.0}),
             ('duty cycle ignored (time-mean plume) / pulses at full stay', {'duty': {'R1 chatter (valve open)': 0.31 ** 0.9 * 0.31, 'R2 downstream stop': 0.6 ** 0.9 * 0.6, 'R3 isolated digester': 0.29 ** 0.9 * 0.29, 'R5 blocked PVRV, continuous': 1.0}}, {'duty': {'R1 chatter (valve open)': 1.0, 'R2 downstream stop': 1.0, 'R3 isolated digester': 1.0, 'R5 blocked PVRV, continuous': 1.0}}),
             ('weather: all D5 / all calm', {'weather_day': {'D5': 1.0}, 'weather_night': {'D5': 1.0}}, {'weather_day': {'calm': 1.0}, 'weather_night': {'calm': 1.0}}),
-            ('routine presence x0 / x3', {'routine_day': 0.0}, {'routine_day': 0.036}), ('seal-failure injury 0.02 / 0.3', {'p_injury_seal': 0.02}, {'p_injury_seal': 0.3})]
+            ('routine roof work 0.5 / 6 h per week', {'routine_h_per_week': 0.5}, {'routine_h_per_week': 6.0}), ('seal-failure injury 0.02 / 0.3', {'p_injury_seal': 0.02}, {'p_injury_seal': 0.3}),
+            ('manual vent fouled too 0.1 / 0.6', {'p_vent_fouled': 0.1}, {'p_vent_fouled': 0.6}), ('near the valve during routine work 0.1 / 1.0', {'p_near_valve_routine': 0.1}, {'p_near_valve_routine': 1.0}),
+            ('PAH available (base) / no PAH: roof visits x1.5, plume stay x2 (foam, block)', {}, {'p_roof': {**QRA['p_roof']['v'], 'foam': (1.0, 0.75), 'block': (1.0, 0.75)}, 'p_in_plume_h2s': 0.04})]
     srows = []
     for case, f_on in ((1, 1.0), (1, 0.8)):
         base = summarize(run_case(case, f_on)[0], case, f_on)['IR_total']

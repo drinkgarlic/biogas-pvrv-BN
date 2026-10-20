@@ -39,9 +39,9 @@
   "v": 0.5,
   "src": "Assumption: the 30-s depressurisation cloud (LFL 6-13 m) covers most of the roof"
  },
- "p_zone_routine": {
-  "v": 0.03,
-  "src": "Assumption: random position on the roof (radius ~10 m) vs. a plume a few metres long"
+ "p_near_valve_routine": {
+  "v": 0.3,
+  "src": "Assumption: share of the routine time on the roof spent within a few metres of the PVRV (the valve is one of the items of the round)"
  },
  "t_at_valve_min": {
   "v": 5.0,
@@ -59,21 +59,68 @@
   "v": 3.0,
   "src": "Location-specific IR evaluated for a permanent presence 3 m from the vent (roof walkway)"
  },
- "p_roof_day": {
-  "v": 0.5,
-  "src": "Assumption: probability that the responding operator goes up to the digester roof while the valve vents (day)"
+ "detection": {
+  "v": {
+   "demand": "flare controller: ignition-failure alarm within ~1 min",
+   "stop": "consumer trip alarm, immediate",
+   "foam": "PAH on PT-101 of that digester (set 4.8 kPag) ~4 min after the blockage, 1-2 min before the valve opens",
+   "block": "same as foam",
+   "wv": "no direct signal; holder pressure trend if a transmitter exists, otherwise the weekly round",
+   "R5": "PT-101 above the PVRV setting and still rising = the valve is not relieving"
+  },
+  "src": "Plant instrumentation (ISO-BG-001 REV.1): PT-101A/B, holder level, flare and consumer status. The PVRV itself has no position switch and there is no gas detector at the vent"
  },
- "p_roof_night": {
-  "v": 0.3,
-  "src": "Assumption: same at night"
+ "action": {
+  "v": {
+   "demand": "control-room restart (same as the automatic retry); if it fails, to the FLARE, not the digester roof",
+   "stop": "manual flare start from the control room",
+   "foam": "field check of the digester: sight glass, condensate pot, XV, PVRV - all on the roof",
+   "block": "same as foam",
+   "wv": "inspection at the holder; digester roof only if PT-101 is high",
+   "R5": "stop feeding and open the manual vent ON THE ROOF within the 27 min to seal failure"
+  },
+  "src": "Assumption"
  },
- "routine_day": {
-  "v": 0.012,
-  "src": "Assumption: daily 5-min inspection at each PVRV + 24 h/yr maintenance, within the daytime hours (08-20)"
+ "p_roof": {
+  "v": {
+   "demand": [
+    0.1,
+    0.05
+   ],
+   "stop": [
+    0.1,
+    0.05
+   ],
+   "foam": [
+    0.7,
+    0.5
+   ],
+   "block": [
+    0.7,
+    0.5
+   ],
+   "wv": [
+    0.3,
+    0.2
+   ]
+  },
+  "src": "Assumption (day, night): probability that the response puts the operator on the digester roof while the valve is still venting, following the action column above"
  },
- "routine_night": {
-  "v": 0.0,
-  "src": "Assumption: no routine presence at night"
+ "n_responders": {
+  "v": 3,
+  "src": "Assumption: one field operator per shift, three shifts; a given individual answers one third of the alarms. IR_worker = PLL_resp / 3 + routine (the 2 h/week are assigned to one person)"
+ },
+ "control_room": {
+  "v": "24 h, three shifts",
+  "src": "Assumption; the night response distribution R_night (BN) applies 20-08 h"
+ },
+ "PAH_kPag": {
+  "v": 4.8,
+  "src": "Assumption: high-pressure alarm on PT-101 at 4.8 kPag (0.25 kPa below the PVRV opening pressure 5.05)"
+ },
+ "routine_h_per_week": {
+  "v": 2.0,
+  "src": "User: about 2 h/week of regular work on the digester roofs, in the day shift (08-20, 7 days)"
  },
  "p_fouled": {
   "v": 0.1,
@@ -81,11 +128,23 @@
  },
  "p_injury_seal": {
   "v": 0.1,
-  "src": "Assumption: fatality probability for a person on the roof at the moment a roof seal / manhole fails at 10 kPag"
+  "src": "Assumption: fatality for a person on the roof when the seal / manhole lets go at 10 kPag (blow-out, fall from the roof edge, engulfment); the flash fire of the 30-s cloud is counted separately (p_zone_R5, p_fat_flash_R5)"
  },
- "p_on_roof_at_failure": {
-  "v": 0.1,
-  "src": "Assumption: share of the responders who are on the roof at the moment the seal fails (27 min after the blockage)"
+ "p_vent_fouled": {
+  "v": 0.3,
+  "src": "Assumption: probability that the manual vent on the same roof is fouled by the same foam as the PVRV, so that opening it does not relieve the digester (the operator is then on the roof when the seal fails)"
+ },
+ "t_open_vent_min": {
+  "v": 3.0,
+  "src": "Assumption: minutes from arrival on the roof to an open manual vent; arrivals within the response bucket R(<= 0.5 h) are taken uniform between 5 and 30 min, so the share arriving too late is t_open / 25"
+ },
+ "p_seal_kPag": {
+  "v": 10.0,
+  "src": "Seal / manhole failure taken at twice the design pressure of the digester roof (5.0 kPag); the window from the PAH to failure is (10 - 4.8) / (0.266 x 41.2) = 28.5 min"
+ },
+ "t_vent_manual_min": {
+  "v": 15.0,
+  "src": "Assumption: minutes the operator stays beside the manual vent after opening it (41 m3/h, continuous) until the feed stop brings the pressure down"
  },
  "yH2S_ppm": {
   "v": 2527.0,
