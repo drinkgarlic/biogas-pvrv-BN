@@ -1,0 +1,116 @@
+{
+ "1": {
+  "stop": {
+   "openings_per_yr": 0.1686226855022831,
+   "vent_m3_per_yr": 20.12608204704979,
+   "open_h_per_yr": 0.22900637284086803
+  },
+  "demand": {
+   "openings_per_yr": 6.335000000000001,
+   "vent_m3_per_yr": 705.1314435078609,
+   "open_h_per_yr": 27.42881268844218
+  },
+  "foam": {
+   "openings_per_yr": 0.4199999999999999,
+   "vent_m3_per_yr": 48.70819380587599,
+   "open_h_per_yr": 1.179703683264854
+  },
+  "block": {
+   "openings_per_yr": 0.7999999999999999,
+   "vent_m3_per_yr": 97.11167104557634,
+   "open_h_per_yr": 2.2505805698716577
+  },
+  "wv": {
+   "openings_per_yr": 0.0027905251141552515,
+   "vent_m3_per_yr": 0.021594583931597404,
+   "open_h_per_yr": 0.2152648401826484
+  },
+  "total": {
+   "openings_per_yr": 7.726413210616441,
+   "vent_m3_per_yr": 871.0989849902945,
+   "open_h_per_yr": 31.303368154602207,
+   "ch4_kg_per_yr": 383.2499837310607,
+   "P_at_least_one_per_yr": 0.9995589768592845,
+   "chatter_cycles_per_yr": 4319.864805335104,
+   "pv_stuck_overpressure_per_yr": 0.0,
+   "reseat_fail_per_yr": 0.0,
+   "reseat_leak_m3_per_yr": 0.0
+  }
+ },
+ "2": {
+  "stop": {
+   "openings_per_yr": 0.1565990011415525,
+   "vent_m3_per_yr": 18.25987916047188,
+   "open_h_per_yr": 0.2071649170016155
+  },
+  "demand": {
+   "openings_per_yr": 6.305000000000001,
+   "vent_m3_per_yr": 631.1832217658368,
+   "open_h_per_yr": 24.42309337253808
+  },
+  "foam": {
+   "openings_per_yr": 0.4199999999999999,
+   "vent_m3_per_yr": 47.12924643745493,
+   "open_h_per_yr": 1.138962920780656
+  },
+  "block": {
+   "openings_per_yr": 0.7999999999999999,
+   "vent_m3_per_yr": 94.10415224858386,
+   "open_h_per_yr": 2.1767301122883143
+  },
+  "wv": {
+   "openings_per_yr": 0.00046746575342465754,
+   "vent_m3_per_yr": 0.0019792838940846155,
+   "open_h_per_yr": 0.028858447488584474
+  },
+  "total": {
+   "openings_per_yr": 7.68206646689498,
+   "vent_m3_per_yr": 790.6784788962417,
+   "open_h_per_yr": 27.974809770097252,
+   "ch4_kg_per_yr": 347.5914573158962,
+   "P_at_least_one_per_yr": 0.9995389787713498,
+   "chatter_cycles_per_yr": 3860.523748273421,
+   "pv_stuck_overpressure_per_yr": 0.0,
+   "reseat_fail_per_yr": 0.0,
+   "reseat_leak_m3_per_yr": 0.0
+  }
+ },
+ "3": {
+  "stop": {
+   "openings_per_yr": 0.14363086757990867,
+   "vent_m3_per_yr": 16.53818234882829,
+   "open_h_per_yr": 0.18720375252871724
+  },
+  "demand": {
+   "openings_per_yr": 6.265000000000001,
+   "vent_m3_per_yr": 557.6647729947437,
+   "open_h_per_yr": 21.451219679576628
+  },
+  "foam": {
+   "openings_per_yr": 0.4091260273972602,
+   "vent_m3_per_yr": 45.55471020615536,
+   "open_h_per_yr": 1.0984300220070558
+  },
+  "block": {
+   "openings_per_yr": 0.7844657534246575,
+   "vent_m3_per_yr": 91.10293507605066,
+   "open_h_per_yr": 2.1031766028629675
+  },
+  "wv": {
+   "openings_per_yr": 0.0,
+   "vent_m3_per_yr": 0.0,
+   "open_h_per_yr": 0.0
+  },
+  "total": {
+   "openings_per_yr": 7.602222648401829,
+   "vent_m3_per_yr": 710.860600625778,
+   "open_h_per_yr": 24.840030056975372,
+   "ch4_kg_per_yr": 312.19552631425984,
+   "P_at_least_one_per_yr": 0.9995006596588969,
+   "chatter_cycles_per_yr": 3427.9241478626013,
+   "pv_stuck_overpressure_per_yr": 0.0,
+   "reseat_fail_per_yr": 0.0,
+   "reseat_leak_m3_per_yr": 0.0
+  }
+ }
+}

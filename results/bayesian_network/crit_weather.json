@@ -1,0 +1,278 @@
+{
+ "scen": {
+  "base": {
+   "p_min": 99.73,
+   "drop3h": 0.8599999999999994,
+   "drop24h": 2.0200000000000102,
+   "max_rate_kPa_h": 0.37000000000000455,
+   "wv_reach_case1": 0.5690176908752328,
+   "wv_reach_case1_if_stuck_3d_before": 1.0,
+   "wv_reach_case2": 0.09532122905027933,
+   "wv_reach_case2_if_stuck_3d_before": 0.0,
+   "wv_reach_case3": 0.0,
+   "wv_reach_case3_if_stuck_3d_before": 0.0,
+   "bn_open_case1": 7.726413210616441,
+   "bn_wv_case1": 0.0027905251141552515,
+   "bn_open_case2": 7.68206646689498,
+   "bn_wv_case2": 0.00046746575342465754,
+   "bn_open_case3": 7.602222648401829,
+   "bn_wv_case3": 0.0
+  },
+  "typhoon": {
+   "p_min": 96.92,
+   "drop3h": 1.5037720249514308,
+   "drop24h": 4.97938295097957,
+   "max_rate_kPa_h": 0.5158187348130667,
+   "wv_reach_case1": 0.5716945996275605,
+   "wv_reach_case1_if_stuck_3d_before": 0.9452054794520548,
+   "wv_reach_case2": 0.11510707635009311,
+   "wv_reach_case2_if_stuck_3d_before": 0.9178082191780822,
+   "wv_reach_case3": 0.019320297951582868,
+   "wv_reach_case3_if_stuck_3d_before": 0.8904109589041096,
+   "bn_open_case1": 7.726433244863017,
+   "bn_wv_case1": 0.00280365296803653,
+   "bn_open_case2": 7.682163498858451,
+   "bn_wv_case2": 0.0005644977168949772,
+   "bn_open_case3": 7.602317397260276,
+   "bn_wv_case3": 9.474885844748859e-05
+  },
+  "record": {
+   "p_min": 95.92,
+   "drop3h": 2.3855280513997883,
+   "drop24h": 5.979999324788949,
+   "max_rate_kPa_h": 0.85097159898406,
+   "wv_reach_case1": 0.5715782122905028,
+   "wv_reach_case1_if_stuck_3d_before": 0.958904109589041,
+   "wv_reach_case2": 0.11522346368715083,
+   "wv_reach_case2_if_stuck_3d_before": 0.9452054794520548,
+   "wv_reach_case3": 0.019436685288640596,
+   "wv_reach_case3_if_stuck_3d_before": 0.9178082191780822,
+   "bn_open_case1": 7.726428530251145,
+   "bn_wv_case1": 0.0028030821917808223,
+   "bn_open_case2": 7.682164069634705,
+   "bn_wv_case2": 0.000565068493150685,
+   "bn_open_case3": 7.602317968036532,
+   "bn_wv_case3": 9.531963470319636e-05
+  }
+ },
+ "sec": {
+  "base_case1_normal": {
+   "PV_opens": 0,
+   "PV_vent": 0.0,
+   "WV_opens": 28,
+   "blower_starts": 0,
+   "PT_max": 4.081859379751831,
+   "PT_min": 3.7785410818613956,
+   "WV_air": 16.26263078705097
+  },
+  "base_case1_wvstuck": {
+   "PV_opens": 8,
+   "PV_vent": 2.193377459094926,
+   "CH4_kg": 0.9449912169132172,
+   "open_s": 56.0,
+   "PT_max": 5.049763058026554,
+   "first_open": "2021-09-07 14:28:33"
+  },
+  "base_case2_normal": {
+   "PV_opens": 0,
+   "PV_vent": 0.0,
+   "WV_opens": 37,
+   "blower_starts": 0,
+   "PT_max": 3.0734073551296364,
+   "PT_min": 2.790286617652761,
+   "WV_air": 16.15439666397768
+  },
+  "base_case2_wvstuck": {
+   "PV_opens": 0,
+   "PV_vent": 0.0,
+   "CH4_kg": 0.0,
+   "open_s": 0.0,
+   "PT_max": 4.187766323614965,
+   "first_open": null
+  },
+  "base_case3_normal": {
+   "PV_opens": 0,
+   "PV_vent": 0.0,
+   "WV_opens": 55,
+   "blower_starts": 0,
+   "PT_max": 2.0649572573828983,
+   "PT_min": 1.780994788576694,
+   "WV_air": 16.180482405498886
+  },
+  "base_case3_wvstuck": {
+   "PV_opens": 0,
+   "PV_vent": 0.0,
+   "CH4_kg": 0.0,
+   "open_s": 0.0,
+   "PT_max": 3.1894092958309184,
+   "first_open": null
+  },
+  "typhoon_case1_normal": {
+   "PV_opens": 0,
+   "PV_vent": 0.0,
+   "WV_opens": 124,
+   "blower_starts": 14,
+   "PT_max": 4.081859443797968,
+   "PT_min": 3.726980741598415,
+   "WV_air": 76.71457876736851
+  },
+  "typhoon_case1_wvstuck": {
+   "PV_opens": 175,
+   "PV_vent": 54.21522069485028,
+   "CH4_kg": 23.37011546337143,
+   "open_s": 1384.0,
+   "PT_max": 5.049891716371884,
+   "first_open": "2021-09-06 02:21:16"
+  },
+  "typhoon_case2_normal": {
+   "PV_opens": 0,
+   "PV_vent": 0.0,
+   "WV_opens": 166,
+   "blower_starts": 14,
+   "PT_max": 3.0734074098086968,
+   "PT_min": 2.7288975551591297,
+   "WV_air": 76.83156581069588
+  },
+  "typhoon_case2_wvstuck": {
+   "PV_opens": 128,
+   "PV_vent": 40.1128192645521,
+   "CH4_kg": 17.29076147609854,
+   "open_s": 1024.0,
+   "PT_max": 5.049893426543761,
+   "first_open": "2021-09-06 04:34:12"
+  },
+  "typhoon_case3_normal": {
+   "PV_opens": 0,
+   "PV_vent": 0.0,
+   "WV_opens": 245,
+   "blower_starts": 14,
+   "PT_max": 2.0649573027764037,
+   "PT_min": 1.730848524907303,
+   "WV_air": 76.93938899134119
+  },
+  "typhoon_case3_wvstuck": {
+   "PV_opens": 83,
+   "PV_vent": 26.010336570694907,
+   "CH4_kg": 11.211645714532146,
+   "open_s": 664.0,
+   "PT_max": 5.049891127008586,
+   "first_open": "2021-09-06 06:34:36"
+  },
+  "record_case1_normal": {
+   "PV_opens": 0,
+   "PV_vent": 0.0,
+   "WV_opens": 142,
+   "blower_starts": 17,
+   "PT_max": 4.0818593797519025,
+   "PT_min": 3.7265550149962903,
+   "WV_air": 90.94993580992913
+  },
+  "record_case1_wvstuck": {
+   "PV_opens": 218,
+   "PV_vent": 68.3224885719258,
+   "CH4_kg": 29.450565526798602,
+   "open_s": 1744.0,
+   "PT_max": 5.049988623546648,
+   "first_open": "2021-09-06 04:12:52"
+  },
+  "record_case2_normal": {
+   "PV_opens": 0,
+   "PV_vent": 0.0,
+   "WV_opens": 187,
+   "blower_starts": 17,
+   "PT_max": 3.073407355129707,
+   "PT_min": 2.7284567773233865,
+   "WV_air": 90.88049442379776
+  },
+  "record_case2_wvstuck": {
+   "PV_opens": 173,
+   "PV_vent": 54.21992097792964,
+   "CH4_kg": 23.37135551513075,
+   "open_s": 1384.0,
+   "PT_max": 5.0499890452114515,
+   "first_open": "2021-09-06 05:53:04"
+  },
+  "record_case3_normal": {
+   "PV_opens": 0,
+   "PV_vent": 0.0,
+   "WV_opens": 278,
+   "blower_starts": 17,
+   "PT_max": 2.064957257382972,
+   "PT_min": 1.730431727513265,
+   "WV_air": 91.25381276735867
+  },
+  "record_case3_wvstuck": {
+   "PV_opens": 128,
+   "PV_vent": 40.1158142259544,
+   "CH4_kg": 17.29163983158005,
+   "open_s": 1024.0,
+   "PT_max": 5.049988068222958,
+   "first_open": "2021-09-06 07:12:33"
+  }
+ },
+ "scan": {
+  "base_case1": {
+   "t_open_med": 119.6,
+   "t_open_min": 115.98333333333333,
+   "rigid_med": 16.36666666666666,
+   "rigid_min": 15.63333333333334,
+   "vent1h_med": 46.00592167723467
+  },
+  "base_case2": {
+   "t_open_med": 134.93333333333334,
+   "t_open_min": 131.18333333333334,
+   "rigid_med": 32.858333333333334,
+   "rigid_min": 32.2,
+   "vent1h_med": NaN
+  },
+  "base_case3": {
+   "t_open_med": 150.30833333333334,
+   "t_open_min": 146.46666666666667,
+   "rigid_med": 49.325,
+   "rigid_min": 48.266666666666666,
+   "vent1h_med": NaN
+  },
+  "typhoon_case1": {
+   "t_open_med": 118.475,
+   "t_open_min": 103.03333333333333,
+   "rigid_med": 16.41666666666667,
+   "rigid_min": 14.133333333333326,
+   "vent1h_med": 47.39565306772565
+  },
+  "typhoon_case2": {
+   "t_open_med": 133.64166666666665,
+   "t_open_min": 116.58333333333333,
+   "rigid_med": 32.75833333333333,
+   "rigid_min": 28.766666666666666,
+   "vent1h_med": 51.285466064491786
+  },
+  "typhoon_case3": {
+   "t_open_med": 148.91666666666669,
+   "t_open_min": 130.38333333333333,
+   "rigid_med": 49.01666666666667,
+   "rigid_min": 43.21666666666667,
+   "vent1h_med": NaN
+  },
+  "record_case1": {
+   "t_open_med": 119.19166666666666,
+   "t_open_min": 95.55,
+   "rigid_med": 16.266666666666666,
+   "rigid_min": 13.316666666666677,
+   "vent1h_med": 46.44262047281332
+  },
+  "record_case2": {
+   "t_open_med": 134.44166666666666,
+   "t_open_min": 108.26666666666667,
+   "rigid_med": 32.699999999999996,
+   "rigid_min": 26.616666666666674,
+   "vent1h_med": 54.00666933665204
+  },
+  "record_case3": {
+   "t_open_med": 149.16666666666669,
+   "t_open_min": 121.01666666666667,
+   "rigid_med": 48.91666666666667,
+   "rigid_min": 40.05,
+   "vent1h_med": NaN
+  }
+ }
+}

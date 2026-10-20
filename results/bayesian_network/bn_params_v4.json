@@ -1,0 +1,157 @@
+{
+ "lam_stop": {
+  "v": 12.0,
+  "unit": "per year",
+  "src": "Assumption. Qualitative basis: Reinelt 2016 (many CHP stops in 106 days), Korean experience of frequent faults of gas engines / steam users"
+ },
+ "lam_power": {
+  "v": 0.1,
+  "unit": "per year",
+  "src": "KEPCO interruptions per customer 0.08-0.13 per year (2025 statistics, released via a National Assembly office, Segye Ilbo 2026-07-14)"
+ },
+ "D_dist": {
+  "v": {
+   "0.5": 0.45,
+   "2.0": 0.35,
+   "6.0": 0.15,
+   "24.0": 0.05
+  },
+  "unit": "h: probability",
+  "src": "Assumption. Durations in ARIA 47807 (1.5 h), 49983, 42739 (30 min) as reference"
+ },
+ "pfd_flare": {
+  "v": 0.05,
+  "unit": "probability of failure on demand",
+  "src": "Assumption. Mid value of the IEC 61511 SIL 1 band (0.01-0.1); failure modes (ignition, flame detection, freezing) after Travnicek"
+ },
+ "lam_foam": {
+  "v": 2.0,
+  "unit": "per year",
+  "src": "Kougias 2014 (16 Danish plants, up to 3 per year), Moeller 2012 (7 of 15 plants regularly)"
+ },
+ "p_block_foam": {
+  "v": 0.3,
+  "unit": "probability",
+  "src": "Assumption. EA 2019 incident review (foam blocking PRVs and gas lines)"
+ },
+ "p_pv_fouled": {
+  "v": 0.3,
+  "unit": "probability",
+  "src": "Assumption. EA 2019 (2012-06 foam blocked the PRV and the roof ruptured; 2013-01 floating layer blocked the PRV)"
+ },
+ "lam_cond": {
+  "v": 0.5,
+  "unit": "per year",
+  "src": "Assumption. Condensate pot management failure"
+ },
+ "lam_freeze": {
+  "v": 0.2,
+  "unit": "per year (Dec-Feb only)",
+  "src": "Assumption. ARIA 47807 / 42739 (isolation by freezing, frozen valve)"
+ },
+ "lam_xv": {
+  "v": 0.1,
+  "unit": "per year",
+  "src": "Assumption. Shut-off valve mis-operation / interlock isolation (ARIA 49983)"
+ },
+ "lam_wv": {
+  "v": 0.1,
+  "unit": "per year",
+  "src": "Assumption. Weight-loaded lid stuck (corrosion, freezing). ARIA 42739 (frozen relief valve)"
+ },
+ "latent_wv_h": {
+  "v": 168,
+  "unit": "h",
+  "src": "Assumption. Weekly walk-down inspection"
+ },
+ "R_day": {
+  "v": {
+   "0.5": 0.6,
+   "2.0": 0.3,
+   "8.0": 0.1
+  },
+  "unit": "h: probability",
+  "src": "Assumption. Attended operation during the day"
+ },
+ "R_night": {
+  "v": {
+   "0.5": 0.2,
+   "2.0": 0.4,
+   "8.0": 0.4
+  },
+  "unit": "h: probability",
+  "src": "Assumption. Reinelt 2016: before monitoring the operators were unaware of the releases"
+ },
+ "Q_use": {
+  "v": 60.0,
+  "unit": "m3/h",
+  "src": "User setting (constant consumption)"
+ },
+ "fill_series": {
+  "v": "fill_hourly_use60.csv",
+  "unit": "",
+  "src": "Operating model (constant consumption 60 + proportional flare 150, 70-85 %)"
+ },
+ "demand_series": {
+  "v": "flare_demands_use60.csv",
+  "unit": "",
+  "src": "Operating model: 641 flare demands per year"
+ },
+ "chatter_per_h": {
+  "v": 138.0,
+  "unit": "per h",
+  "src": "1-s model, minimum stable opening 10 %"
+ },
+ "f_on": {
+  "v": 0.85,
+  "unit": "true fill fraction",
+  "src": "Flare start fill fraction (on/off operation: 1.0 / 0.8 / 0.6)"
+ },
+ "t_retry_h": {
+  "v": 0.0,
+  "unit": "h",
+  "src": "Automatic retry interval after an ignition failure. 0 = no automatic retry (operator response only). 0.5 matches the 1-s model"
+ },
+ "n_retry": {
+  "v": 4,
+  "unit": "count",
+  "src": "Maximum number of automatic retries; if all fail the event passes to the operator response (R)"
+ },
+ "p_hard": {
+  "v": 0.0,
+  "unit": "share of failures",
+  "src": "Assumption. Share of failures that a retry cannot clear (flame detector, pilot gas, freezing, cf. Travnicek) -> operator response only. Sensitivity value 0.3"
+ },
+ "pressure_backup": {
+  "v": true,
+  "unit": "",
+  "src": "Whether a pressure-based flare start (PSH) exists. With fill-level start only, False -> no backup in the stuck-vent-valve branch"
+ },
+ "level_bias": {
+  "v": {
+   "0.0": 1.0
+  },
+  "unit": "fill error: probability",
+  "src": "Assumption. Ultrasonic level indicator error (inner membrane shape). Sensitivity: {-0.05: .25, 0: .5, +0.05: .25}"
+ },
+ "p_pv_stuck": {
+  "v": 0.0,
+  "unit": "probability of failure per opening demand",
+  "src": "Assumption. PVRV stuck (corrosion, freezing). Sensitivity value 0.01"
+ },
+ "p_reseat": {
+  "v": 0.0,
+  "unit": "probability of reseat failure per opening episode",
+  "src": "Assumption. Seat fouling. Sensitivity value 0.05"
+ },
+ "Q_leak": {
+  "v": 20.0,
+  "unit": "m3/h",
+  "src": "Assumption. Leak rate after a reseat failure"
+ },
+ "t_leak_h": {
+  "v": 12.0,
+  "unit": "h",
+  "src": "Assumption. Mean time until a leak is found and fixed"
+ }
+}

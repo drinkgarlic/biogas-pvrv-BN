@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.nbi
+*.nbc
+pressure_model/out/
+pressure_model/fig/
+bayesian_network/out/
+bayesian_network/fig/
+*.log
+.ipynb_checkpoints/

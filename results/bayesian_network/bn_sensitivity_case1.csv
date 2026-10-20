@@ -1,0 +1,9 @@
+parameter,n_low,n_high,v_low,v_high
+flare failure on demand 0.01 / 0.10,2.521,14.233,290.876,1596.378
+downstream stop frequency 6 / 24 per year,7.643,7.894,861.119,891.059
+foaming 1 / 3 per year,7.516,7.936,846.745,895.453
+probability that foam fouls the PVRV 0.1 / 0.5,7.606,7.846,857.182,885.016
+operator response: always daytime / always night,3.830,11.428,371.713,1346.364
+8-h response share 0 (alarm trusted) / doubled,1.370,12.810,71.278,1513.133
+vent valve stuck 0.02 / 0.5 per year,7.724,7.738,871.082,871.185
+stop duration: shorter / longer,7.678,7.780,862.562,887.482

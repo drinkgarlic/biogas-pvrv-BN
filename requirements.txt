@@ -1,0 +1,5 @@
+numpy>=1.24
+pandas>=2.0
+matplotlib>=3.7
+numba>=0.58        # optional but strongly recommended: compiles the 1-s kernel (year run < 1 min instead of ~25 min)
+networkx>=3.0      # only for the DAG figure in bayesian_network/bn_sens_figs.py
