@@ -1,5 +1,7 @@
 # biogas-pvrv-BN
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/drinkgarlic/biogas-pvrv-BN/blob/main/colab/Biogas_PVRV_Colab.ipynb)
+
 **Dynamic quantitative risk assessment of pressure/vacuum relief valve (PVRV) opening at a food-waste biogas plant.**
 A one-second pressure model of two anaerobic digesters feeding a double-membrane gas holder, coupled with a Bayesian network that turns the physics into an annual opening frequency.
 
@@ -75,7 +77,7 @@ python colab/run_pressure_model.py              # the real thing: 19 one-year si
 
 ### Google Colab
 
-Open `colab/Biogas_PVRV_Colab.ipynb` in Colab (File → Open notebook → GitHub, paste the repository URL). The first cell clones the repository and installs the requirements; the following cells run the two drivers and show the figures. Colab ships with numba, so a one-year simulation takes well under a minute after the first compilation, and the full pressure-model workflow finishes in roughly 15 minutes on a standard CPU runtime. Add `--jobs 1` if the runtime runs out of memory (each year simulation holds about 1 GB).
+Click the badge above, or open this link: https://colab.research.google.com/github/drinkgarlic/biogas-pvrv-BN/blob/main/colab/Biogas_PVRV_Colab.ipynb — Colab loads the notebook straight from GitHub, no download needed. The first cell clones the repository and installs the requirements; the following cells run the two drivers and show the figures. Colab ships with numba, so a one-year simulation takes well under a minute after the first compilation, and the full pressure-model workflow finishes in roughly 15 minutes on a standard CPU runtime. Add `--jobs 1` if the runtime runs out of memory (each year simulation holds about 1 GB).
 
 ### Quick mode
 
