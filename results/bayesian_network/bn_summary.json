@@ -11,9 +11,9 @@
    "open_h_per_yr": 27.42881268844218
   },
   "foam": {
-   "openings_per_yr": 0.4199999999999999,
-   "vent_m3_per_yr": 48.70819380587599,
-   "open_h_per_yr": 1.179703683264854
+   "openings_per_yr": 0.54,
+   "vent_m3_per_yr": 62.62482060755485,
+   "open_h_per_yr": 1.5167618784833838
   },
   "block": {
    "openings_per_yr": 0.7999999999999999,
@@ -26,13 +26,14 @@
    "open_h_per_yr": 0.2152648401826484
   },
   "total": {
-   "openings_per_yr": 7.726413210616441,
-   "vent_m3_per_yr": 871.0989849902945,
-   "open_h_per_yr": 31.303368154602207,
-   "ch4_kg_per_yr": 383.2499837310607,
-   "P_at_least_one_per_yr": 0.9995589768592845,
-   "chatter_cycles_per_yr": 4319.864805335104,
-   "pv_stuck_overpressure_per_yr": 0.0,
+   "openings_per_yr": 7.84641321061644,
+   "vent_m3_per_yr": 885.0156117919735,
+   "open_h_per_yr": 31.640426349820736,
+   "ch4_kg_per_yr": 389.18851181340904,
+   "P_at_least_one_per_yr": 0.9996088475634343,
+   "chatter_cycles_per_yr": 4366.378836275261,
+   "pv_stuck_overpressure_per_yr": 0.009676503626997698,
+   "pv_fouled_overpressure_per_yr": 0.06,
    "reseat_fail_per_yr": 0.0,
    "reseat_leak_m3_per_yr": 0.0
   }
@@ -49,9 +50,9 @@
    "open_h_per_yr": 24.42309337253808
   },
   "foam": {
-   "openings_per_yr": 0.4199999999999999,
-   "vent_m3_per_yr": 47.12924643745493,
-   "open_h_per_yr": 1.138962920780656
+   "openings_per_yr": 0.54,
+   "vent_m3_per_yr": 60.59474541958492,
+   "open_h_per_yr": 1.4643808981465578
   },
   "block": {
    "openings_per_yr": 0.7999999999999999,
@@ -64,13 +65,14 @@
    "open_h_per_yr": 0.028858447488584474
   },
   "total": {
-   "openings_per_yr": 7.68206646689498,
-   "vent_m3_per_yr": 790.6784788962417,
-   "open_h_per_yr": 27.974809770097252,
-   "ch4_kg_per_yr": 347.5914573158962,
-   "P_at_least_one_per_yr": 0.9995389787713498,
-   "chatter_cycles_per_yr": 3860.523748273421,
-   "pv_stuck_overpressure_per_yr": 0.0,
+   "openings_per_yr": 7.802066466894979,
+   "vent_m3_per_yr": 804.1439778783715,
+   "open_h_per_yr": 28.30022774746315,
+   "ch4_kg_per_yr": 353.3374201600691,
+   "P_at_least_one_per_yr": 0.9995911108505496,
+   "chatter_cycles_per_yr": 3905.431429149915,
+   "pv_stuck_overpressure_per_yr": 0.009654389573341369,
+   "pv_fouled_overpressure_per_yr": 0.06,
    "reseat_fail_per_yr": 0.0,
    "reseat_leak_m3_per_yr": 0.0
   }
@@ -87,9 +89,9 @@
    "open_h_per_yr": 21.451219679576628
   },
   "foam": {
-   "openings_per_yr": 0.4091260273972602,
-   "vent_m3_per_yr": 45.55471020615536,
-   "open_h_per_yr": 1.0984300220070558
+   "openings_per_yr": 0.5260191780821918,
+   "vent_m3_per_yr": 58.570341693628336,
+   "open_h_per_yr": 1.4122671711519288
   },
   "block": {
    "openings_per_yr": 0.7844657534246575,
@@ -102,13 +104,14 @@
    "open_h_per_yr": 0.0
   },
   "total": {
-   "openings_per_yr": 7.602222648401829,
-   "vent_m3_per_yr": 710.860600625778,
-   "open_h_per_yr": 24.840030056975372,
-   "ch4_kg_per_yr": 312.19552631425984,
-   "P_at_least_one_per_yr": 0.9995006596588969,
-   "chatter_cycles_per_yr": 3427.9241478626013,
-   "pv_stuck_overpressure_per_yr": 0.0,
+   "openings_per_yr": 7.71911579908676,
+   "vent_m3_per_yr": 723.8762321132508,
+   "open_h_per_yr": 25.153867206120243,
+   "ch4_kg_per_yr": 317.749466096332,
+   "P_at_least_one_per_yr": 0.999555746760587,
+   "chatter_cycles_per_yr": 3471.2336744445934,
+   "pv_stuck_overpressure_per_yr": 0.009486070920374356,
+   "pv_fouled_overpressure_per_yr": 0.06,
    "reseat_fail_per_yr": 0.0,
    "reseat_leak_m3_per_yr": 0.0
   }

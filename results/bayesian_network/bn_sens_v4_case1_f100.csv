@@ -1,14 +1,14 @@
 parameter,n_low,n_high,v_low,v_high
-ignition failure probability 0.01 / 0.10,17.2174,162.6517,256.0003,1450.3545
-share of hard faults (retry useless) 0.1 / 0.3,82.8703,85.7758,1562.5851,3211.1156
-automatic retry interval 15 / 60 min,18.9120,91.8887,196.2522,1807.7380
-8-h response share 0 (alarm trusted) / doubled,81.3497,81.5077,648.1127,817.1388
-operator response always daytime / always night,81.2362,81.5970,658.2228,818.1242
-level indicator error +5 % / -5 % (reads low),2.9174,81.4175,161.9203,738.3199
-downstream stops 6 / 24 per year,81.2194,81.8137,732.8765,749.2068
-stop duration shorter / longer,81.3650,81.4743,736.0552,740.6366
-foaming 1 / 3 per year,81.2075,81.6275,713.9658,762.6740
-probability that foam fouls the PVRV 0.5 / 0.1,81.2975,81.5375,724.4033,752.2366
-condensate / XV blockage 0.3 / 1.2 per year,81.1175,82.0175,703.5284,807.9031
-vent valve stuck 0.02 / 0.5 per year,81.3728,81.6407,737.9744,740.0475
-stuck latent period 72 / 336 h,81.3829,81.4432,738.0096,738.9169
+ignition failure probability 0.01 / 0.10,17.3374,162.7717,269.9169,1464.2711
+share of hard faults (retry useless) 0.1 / 0.3,82.9903,85.8958,1576.5018,3225.0322
+automatic retry interval 15 / 60 min,19.0320,92.0087,210.1688,1821.6546
+8-h response share 0 (alarm trusted) / doubled,81.4697,81.6277,654.0554,837.7313
+operator response always daytime / always night,81.3562,81.7170,666.2052,837.9745
+level indicator error +5 % / -5 % (reads low),3.0374,81.5375,175.8369,752.2366
+downstream stops 6 / 24 per year,81.3394,81.9337,746.7931,763.1235
+stop duration shorter / longer,81.4850,81.5943,749.9718,754.5533
+foaming 1 / 3 per year,81.2675,81.8075,720.9241,783.5490
+probability that foam fouls the PVRV 0.3 / 0.03,81.4175,81.5795,738.3199,757.1074
+condensate / XV blockage 0.3 / 1.2 per year,81.2375,82.1375,717.4450,821.8197
+vent valve stuck 0.02 / 0.5 per year,81.4928,81.7607,751.8910,753.9641
+stuck latent period 72 / 336 h,81.5029,81.5632,751.9263,752.8336

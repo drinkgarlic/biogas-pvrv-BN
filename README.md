@@ -16,7 +16,7 @@ Two questions are answered, one by each package.
 | `pressure_model/` | *When* does the PVRV open, given production, holder fill, weather and downstream behaviour? | Lumped ideal-gas model, 1-s time step, one year (31.5 million steps) | < 1 min per year with numba, 12–25 min in pure Python |
 | `bayesian_network/` | *How often* per year, given uncertain initiating events, flare reliability and operator response? | One-hour-slice Bayesian network with exact enumeration, physics taken from the pressure model | about one minute for all nine cases |
 
-Headline result: with the holder kept full (flare start at 100 %) the expected number of PVRV openings is 81 / 17 / 2.7 per year for operating pressures of 4.0 / 3.0 / 2.0 kPag, almost all of them caused by flare ignition failures. Starting the flare at 80 % fill or lower removes those openings entirely; what remains is 1.2–1.3 per year from events that do not involve the flare (condensate, freezing, foam, a stuck vent valve). Both tools agree on the ignition-failure branch: 79.7 / 15.8 / 1.3 expected openings from the BN against 80 / 21 / 3 realised openings in the 1-s simulation.
+Headline result: with the holder kept full (flare start at 100 %) the expected number of PVRV openings is 82 / 18 / 2.9 per year for operating pressures of 4.0 / 3.0 / 2.0 kPag, almost all of them caused by flare ignition failures. Starting the flare at 80 % fill or lower removes those openings entirely; what remains is 1.3–1.4 per year from events that do not involve the flare (condensate, freezing, foam, a stuck vent valve). Both tools agree on the ignition-failure branch: 79.7 / 15.8 / 1.3 expected openings from the BN against 80 / 21 / 3 realised openings in the 1-s simulation.
 
 ![nine on/off cases: holder fill and PVRV openings](results/figures/onoff_9cases_fill_pv.png)
 
@@ -153,6 +153,8 @@ The year is cut into 8,760 one-hour slices. In each slice the evidence (producti
 **`pv_bn.py`** — the network.
 
 - `PARAMS`: every number with its unit and source. Initiating-event frequencies (downstream stops 12/yr, power cuts 0.1/yr, foaming 2/yr, condensate 0.5/yr, shut-off valve 0.1/yr, freezing 0.2/yr in winter, stuck vent valve 0.1/yr), the flare PFD (0.05), the response-time distributions, the retry logic (`t_retry_h`, `n_retry`, `p_hard`), the flare start level `f_on`, the `pressure_backup` switch and the optional nodes (level-indicator bias, stuck PVRV, reseat failure).
+
+  **v4.1 (2026-10-21).** The probability that foam reaching the outlet also fouls the PVRV (`p_pv_fouled`) is 0.1 instead of 0.3 — the same value the QRA uses for its seal-failure chain, so that both packages read one parameter (sensitivity 0.03–0.3); the foam branch of the 80 % cases rises from 0.42 to 0.54 openings a year. The stuck-PVRV node now carries a sourced value: NOG-070 (2020) Table A.2.1 gives λ_DU = 1.1 × 10⁻⁶ /h for a PSV that fails to open before the test pressure, i.e. PFD = 4.8 × 10⁻³ per demand with an annual proof test (`p_pv_stuck`); the shared header is protected 1oo2 with β = 0.1 (`beta_pv`), an isolated digester by one valve. `summarize()` and `bn_onoff_9cases.csv` report the resulting overpressure frequency (0.046 / 0.015 / 0.007 per year at 100 %, 0.006 at 80 %) next to the foam-fouling overpressure (0.06 per year). These are the initiating frequencies of the no-relief chain in [biogas-pvrv-qra](https://github.com/drinkgarlic/biogas-pvrv-qra).
 - `load_inputs()`: production, methane fraction, atmospheric pressure, fill series and demand series, day/night and winter flags.
 - `slice_inference()`: the heart of the model. Builds the recovery-time distribution by combining the operator response with the geometric retry sequence, then evaluates, for each initiating event, the probability that the opening time is shorter than the recovery time, together with the expected vented volume and duration and the list of open intervals.
 - `run_year()`: loops over the slices, multiplies by the initiating-event probabilities and, with `occupancy=True`, spreads the open intervals over the hours to obtain the state probability (the probability that the valve is open at a given hour, as opposed to the probability that an event starting in that hour will eventually open it).
@@ -170,11 +172,11 @@ Expected PVRV openings per year, base variant (automatic retry 30 min, PFD 0.05)
 
 | Flare start | Case 1 (4.0 kPag) | Case 2 (3.0) | Case 3 (2.0) | Dominant branch |
 |---|---|---|---|---|
-| 100 % | 81.4 | 17.4 | 2.7 | ignition failure on flare demand (79.7 / 15.8 / 1.3) |
-| 80 % | 1.28 | 1.23 | 1.19 | blockage 0.80, foam 0.42, stuck vent valve ≤ 0.06 |
-| 60 % | 1.28 | 1.23 | 1.19 | identical to 80 % — the residual branches do not see the fill level |
+| 100 % | 81.5 | 17.5 | 2.9 | ignition failure on flare demand (79.7 / 15.8 / 1.3) |
+| 80 % | 1.40 | 1.35 | 1.31 | blockage 0.80, foam 0.54, stuck vent valve ≤ 0.06 |
+| 60 % | 1.40 | 1.35 | 1.31 | identical to 80 % — the residual branches do not see the fill level |
 
-If 30 % of the failures cannot be cleared by a retry the 80 % figure becomes 8.5 per year; with no automatic retry at all it is 25.5. In other words the conclusion "80 % or lower gives no flare-related openings" is conditional on ignition failures being transient, and the sensitivity tables in `out/bn_sens_v4_case1_f*.csv` quantify by how much.
+If 30 % of the failures cannot be cleared by a retry the 80 % figure becomes 8.7 per year; with no automatic retry at all it is 25.6. In other words the conclusion "80 % or lower gives no flare-related openings" is conditional on ignition failures being transient, and the sensitivity tables in `out/bn_sens_v4_case1_f*.csv` quantify by how much.
 
 ---
 

@@ -30,7 +30,7 @@ bb = pd.DataFrame(rows); bb.to_csv('out/buffer_band.csv', index=False, float_for
 # optional-node sensitivity (Case 1, base band)
 sens = []
 for name, mod in [('base', {}), ('indicator error ±5 %', {'level_bias': {-0.05: 0.25, 0.0: 0.5, 0.05: 0.25}}), ('indicator reads 5 % low', {'level_bias': {0.05: 1.0}}),
-                  ('PVRV stuck 0.01', {'p_pv_stuck': 0.01}), ('reseat failure 0.05', {'p_reseat': 0.05})]:
+                  ('PVRV stuck, dirty service x5 (0.024)', {'p_pv_stuck': 0.024}), ('reseat failure 0.05', {'p_reseat': 0.05})]:
     prm = copy.deepcopy(bn.PARAMS)
     for k, v in mod.items(): prm[k]['v'] = v
     df = bn.run_year(1, inp, prm); s = bn.summarize(df, prm)['total']

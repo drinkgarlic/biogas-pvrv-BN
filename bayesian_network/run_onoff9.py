@@ -51,7 +51,7 @@ for fo in (1.0, 0.8, 0.6):
                              open_block=s['block']['openings_per_yr'], open_wv=s['wv']['openings_per_yr'], openings=s['total']['openings_per_yr'],
                              P_at_least_one=s['total']['P_at_least_one_per_yr'], open_h=s['total']['open_h_per_yr'], vent_m3=s['total']['vent_m3_per_yr'],
                              vent_demand=s['demand']['vent_m3_per_yr'], vent_stop=s['stop']['vent_m3_per_yr'], ch4_kg=s['total']['ch4_kg_per_yr'],
-                             chatter_cycles=s['total']['chatter_cycles_per_yr'], p_state_max=(float(df['p_state_open'].max()) if 'p_state_open' in df else np.nan)))
+                             chatter_cycles=s['total']['chatter_cycles_per_yr'], overpressure_hw=s['total']['pv_stuck_overpressure_per_yr'], overpressure_fouled=s['total']['pv_fouled_overpressure_per_yr'], p_state_max=(float(df['p_state_open'].max()) if 'p_state_open' in df else np.nan)))
             print(key, 'openings %.3f  (stop %.3f demand %.3f foam %.3f block %.3f wv %.3f)  vent %.0f m3' % (
                 s['total']['openings_per_yr'], s['stop']['openings_per_yr'], s['demand']['openings_per_yr'], s['foam']['openings_per_yr'], s['block']['openings_per_yr'], s['wv']['openings_per_yr'], s['total']['vent_m3_per_yr']))
 r = pd.DataFrame(rows); r.to_csv(os.path.join(HERE, 'out', 'bn_onoff_9cases.csv'), index=False, float_format='%.5f')

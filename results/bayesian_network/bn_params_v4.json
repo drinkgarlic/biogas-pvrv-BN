@@ -35,9 +35,9 @@
   "src": "Assumption. EA 2019 incident review (foam blocking PRVs and gas lines)"
  },
  "p_pv_fouled": {
-  "v": 0.3,
+  "v": 0.1,
   "unit": "probability",
-  "src": "Assumption. EA 2019 (2012-06 foam blocked the PRV and the roof ruptured; 2013-01 floating layer blocked the PRV)"
+  "src": "Assumption (v4.1: 0.3 -> 0.1, the same value as the QRA seal-failure chain). EA 2019 (2012-06 foam blocked the PRV and the roof ruptured; 2013-01 floating layer blocked the PRV). Sensitivity 0.03-0.3"
  },
  "lam_cond": {
   "v": 0.5,
@@ -135,9 +135,14 @@
   "src": "Assumption. Ultrasonic level indicator error (inner membrane shape). Sensitivity: {-0.05: .25, 0: .5, +0.05: .25}"
  },
  "p_pv_stuck": {
-  "v": 0.0,
-  "unit": "probability of failure per opening demand",
-  "src": "Assumption. PVRV stuck (corrosion, freezing). Sensitivity value 0.01"
+  "v": 0.0048,
+  "unit": "probability of failure per opening demand (one valve)",
+  "src": "NOG-070 (2020) Table A.2.1, PSV: lambda_DU 1.1e-6 /h (fail to open before test pressure), annual proof test: PFD = lambda tau / 2 = 4.8e-3. Sensitivities: 2.2e-6 /h (all DU modes), dirty service x5 (foam, sulphur, condensate)"
+ },
+ "beta_pv": {
+  "v": 0.1,
+  "unit": "common-cause factor",
+  "src": "IEC 61508-6 beta for two identical valves on a shared header (1oo2: PFD = beta PFD + PFD^2); stop / demand / wv branches. Foam / block branches isolate one digester -> one valve"
  },
  "p_reseat": {
   "v": 0.0,

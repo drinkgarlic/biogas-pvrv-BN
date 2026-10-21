@@ -24,7 +24,7 @@ SENS = [
     ('downstream stops 6 / 24 per year', {'lam_stop': 6.0}, {'lam_stop': 24.0}),
     ('stop duration shorter / longer', {'D_dist': {0.5: 0.6, 2.0: 0.3, 6.0: 0.08, 24.0: 0.02}}, {'D_dist': {0.5: 0.3, 2.0: 0.3, 6.0: 0.25, 24.0: 0.15}}),
     ('foaming 1 / 3 per year', {'lam_foam': 1.0}, {'lam_foam': 3.0}),
-    ('probability that foam fouls the PVRV 0.5 / 0.1', {'p_pv_fouled': 0.5}, {'p_pv_fouled': 0.1}),
+    ('probability that foam fouls the PVRV 0.3 / 0.03', {'p_pv_fouled': 0.3}, {'p_pv_fouled': 0.03}),
     ('condensate / XV blockage 0.3 / 1.2 per year', {'lam_cond': 0.25, 'lam_xv': 0.05}, {'lam_cond': 1.0, 'lam_xv': 0.2}),
     ('vent valve stuck 0.02 / 0.5 per year', {'lam_wv': 0.02}, {'lam_wv': 0.5}),
     ('stuck latent period 72 / 336 h', {'latent_wv_h': 72}, {'latent_wv_h': 336}),

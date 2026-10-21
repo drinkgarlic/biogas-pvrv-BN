@@ -34,7 +34,7 @@ sens = [
     ('flare failure on demand 0.01 / 0.10', {'pfd_flare': 0.01}, {'pfd_flare': 0.10}),
     ('downstream stop frequency 6 / 24 per year', {'lam_stop': 6.0}, {'lam_stop': 24.0}),
     ('foaming 1 / 3 per year', {'lam_foam': 1.0}, {'lam_foam': 3.0}),
-    ('probability that foam fouls the PVRV 0.1 / 0.5', {'p_pv_fouled': 0.5}, {'p_pv_fouled': 0.1}),
+    ('probability that foam fouls the PVRV 0.03 / 0.3', {'p_pv_fouled': 0.3}, {'p_pv_fouled': 0.03}),
     ('operator response: always daytime / always night', {'R_night': {0.5: 0.6, 2.0: 0.3, 8.0: 0.1}}, {'R_day': {0.5: 0.2, 2.0: 0.4, 8.0: 0.4}}),
     ('8-h response share 0 (alarm trusted) / doubled', {'R_day': {0.5: 0.65, 2.0: 0.35, 8.0: 0.0}, 'R_night': {0.5: 0.3, 2.0: 0.7, 8.0: 0.0}},
                                            {'R_day': {0.5: 0.5, 2.0: 0.3, 8.0: 0.2}, 'R_night': {0.5: 0.1, 2.0: 0.2, 8.0: 0.7}}),
