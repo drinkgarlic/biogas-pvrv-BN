@@ -21,7 +21,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--updating', action='store_true', help='also run the Bayesian-updating demonstration')
     a = ap.parse_args()
-    for s in ('source_terms.py', 'consequence.py', 'gaussian_farfield.py', 'dispersion_check.py', 'risk.py'): run(s)
+    for s in ('source_terms.py', 'consequence.py', 'gaussian_farfield.py', 'dispersion_check.py', 'jet_fire_check.py', 'risk.py'): run(s)
     if a.updating: run('updating.py')
     run('fig_qra.py')
     print('finished. Results: dynamic_qra/out, figures: dynamic_qra/fig')

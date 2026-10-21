@@ -47,6 +47,29 @@ def ext_farm(cls, x, u, z0=Z0, mode='farm'):
     x = np.asarray(x, float); tc = GPF.calculate_tc(x, u)
     return GPF.calculate_sigma(x, z0, tc, dc, idx)
 
+def ext_ch4disp(cls, x):
+    """yunhal/CH4_dispersion (MIT): its own transcription of the ISC3 PG fits; distance in km"""
+    p = os.path.join(EXT, 'CH4_dispersion', 'code')
+    if not os.path.exists(os.path.join(p, 'gaussian_plume_functions.py')): return None
+    import ast                                   # the module imports pyproj / xarray at the top; take only this function
+    tree = ast.parse(open(os.path.join(p, 'gaussian_plume_functions.py'), encoding='utf-8').read())
+    fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'compute_sigma_vals')
+    ns = {'np': np}; exec(compile(ast.Module(body=[fn], type_ignores=[]), 'compute_sigma_vals', 'exec'), ns)
+    xk = np.asarray(x, float) / 1000.0
+    return ns['compute_sigma_vals'](np.array([cls]), xk)
+
+def fgp_coefficients():
+    """Hammerling-Research-Group/FastGaussianPuff (MIT, C++): read the ISC3 coefficients from getSigmaCoefficients() and compare
+    them number by number with koaandmud/GPM; the C++ needs Eigen + pybind11 to build, so it is not run"""
+    f = os.path.join(EXT, 'FastGaussianPuff', 'src', 'CGaussianPuff.cpp')
+    g = os.path.join(EXT, 'GPM', 'calc_sigmas.py')
+    if not (os.path.exists(f) and os.path.exists(g)): return None
+    import re
+    src = open(f, encoding='utf-8').read(); src = src[src.index('void getSigmaCoefficients'):]
+    num = lambda t: sorted(set(round(float(v), 4) for v in re.findall(r'(?<![\w.])\d+\.\d+', t)))
+    a, b = num(src), num(open(g, encoding='utf-8').read())
+    return sorted(set(b) - set(a)), sorted(set(a) - set(b))
+
 def gauss_axis(sy, sz, u, z_rec=H_S, h=H_S):
     """elevated source, receptor on the axis at z_rec, ground reflection: the one formula used for every scheme here"""
     return np.minimum(1.0, Q / (2 * math.pi * u * sy * sz) * (np.exp(-(z_rec - h) ** 2 / (2 * sz ** 2)) + np.exp(-(z_rec + h) ** 2 / (2 * sz ** 2))))
@@ -70,8 +93,15 @@ def main():
             if f is not None: r.update(sy_farm_z0_02=f[0][i], sz_farm_z0_02=f[1][i], sy_farm_z0_18=f_wrong[0][i], sz_farm_z0_18=f_wrong[1][i])
             ref = PG_REF.get((cls, int(x)));  r.update(sy_PG_table=ref[0] if ref else np.nan, sz_PG_table=ref[1] if ref else np.nan)
             rows.append(r)
+    for r in rows:
+        c = ext_ch4disp(r['cls'], [r['x_m']])
+        if c is not None: r['sy_CH4disp'], r['sz_CH4disp'] = float(c[0][0]), float(c[1][0])
     sg = pd.DataFrame(rows); sg.to_csv(os.path.join(OUT, 'dispersion_check_sigmas.csv'), index=False, float_format='%.3g')
     print('1. sigma schemes (m)'); print(sg.round(3).to_string(index=False))
+
+    fg = fgp_coefficients()
+    if fg is not None:
+        print(f'   FastGaussianPuff vs GPM coefficient sets: only in GPM {fg[0]}, only in FastGaussianPuff {fg[1]}')
 
     # ---- 2. one concentration formula, three sigma schemes, plus the near-field plume
     xs2 = np.array([1, 2, 3, 5, 10, 30, 100, 300, 1000], float); rows = []
