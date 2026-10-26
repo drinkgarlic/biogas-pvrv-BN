@@ -1,23 +1,23 @@
 I,Q,F,DN,n,P_open,E_vent_m3
-stop,low,low,day,371,0.00250,0.02588
-stop,low,low,night,365,0.00250,0.02675
-stop,low,mid,day,13,0.00942,0.12420
-stop,low,mid,night,11,0.00523,0.07704
-stop,low,high,day,4,0.02750,0.30901
-stop,low,high,night,8,0.01000,0.15689
-stop,low,full,day,9,0.02750,0.45397
-stop,low,full,night,12,0.02750,0.49966
-stop,mid,low,night,7,0.00250,0.04821
-stop,mid,mid,day,30,0.00975,0.17637
-stop,mid,mid,night,29,0.00871,0.18173
-stop,mid,high,day,6,0.01000,0.21125
-stop,mid,high,night,7,0.02750,0.47692
-stop,mid,full,day,2466,0.03493,0.83010
-stop,mid,full,night,2468,0.03466,0.85132
-stop,high,mid,night,2,0.01000,0.40351
-stop,high,high,night,2,0.02750,1.06401
-stop,high,full,day,1481,0.03850,1.25448
-stop,high,full,night,1469,0.03873,1.28564
+stop,low,low,day,371,0.00250,0.02718
+stop,low,low,night,365,0.00250,0.02805
+stop,low,mid,day,13,0.00942,0.12847
+stop,low,mid,night,11,0.00523,0.07975
+stop,low,high,day,4,0.02750,0.31642
+stop,low,high,night,8,0.01000,0.16208
+stop,low,full,day,9,0.02750,0.46813
+stop,low,full,night,12,0.02750,0.51391
+stop,mid,low,night,7,0.00250,0.04952
+stop,mid,mid,day,30,0.00975,0.18051
+stop,mid,mid,night,29,0.00871,0.18625
+stop,mid,high,day,6,0.01000,0.21645
+stop,mid,high,night,7,0.02750,0.48591
+stop,mid,full,day,2466,0.03493,0.84441
+stop,mid,full,night,2468,0.03466,0.86562
+stop,high,mid,night,2,0.01000,0.40875
+stop,high,high,night,2,0.02750,1.07366
+stop,high,full,day,1481,0.03850,1.26885
+stop,high,full,night,1469,0.03873,1.30001
 foam,low,low,day,371,0.90000,30.65361
 foam,low,low,night,365,0.90000,77.99144
 foam,low,mid,day,13,0.90000,36.49608
@@ -56,7 +56,7 @@ wv,high,mid,night,2,1.00000,2.12465
 wv,high,high,night,2,1.00000,2.12465
 wv,high,full,day,1481,0.58136,5.39468
 wv,high,full,night,1469,0.58135,5.33586
-demand,mid,at f_on(1.0),day,471,0.02299,0.02518
-demand,mid,at f_on(1.0),night,482,0.02368,0.03609
-demand,high,at f_on(1.0),day,573,0.05000,0.46426
-demand,high,at f_on(1.0),night,577,0.05000,0.49535
+demand,mid,at f_on(1.0),day,471,0.02487,0.03758
+demand,mid,at f_on(1.0),night,482,0.02508,0.04879
+demand,high,at f_on(1.0),day,573,0.05000,0.49038
+demand,high,at f_on(1.0),night,577,0.05000,0.52148

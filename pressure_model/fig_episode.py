@@ -23,7 +23,11 @@ for j, fo in enumerate((100, 80, 60)):
 ax[2].xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
 fig.savefig('fig/onoff_case1_episode.png', dpi=150, bbox_inches='tight'); plt.close(fig)
 
-# per ignition failure (holder 100 % + flare off for 2 min or more): did the PVRV open, and the production at that time
+# per ignition failure: did the PVRV open, and the production at that time.
+# A failure is a run of minutes with the holder full and the flare off lasting 20 min or more (normal starts take a few minutes).
+# Its length is measured from the flare demand (holder reaches 500 m3) to the relight inside the first minute with the flare on,
+# and the PVRV flow is summed up to and including that relight minute (v4.2: before, the window started at 99.9 % fill and
+# stopped one minute early, so the length read 1-2 min long and five last-moment openings in Case 1 were missed).
 K_FULL = 0.0803; rows_all = []
 for case, pop in [(1, 4.0), (2, 3.0), (3, 2.0)]:
     d = pd.read_csv(f'out/onoff_case{case}_f100_pfd5_1min.csv.gz', parse_dates=['datetime'])
@@ -31,10 +35,15 @@ for case, pop in [(1, 4.0), (2, 3.0), (3, 2.0)]:
     for i in np.where(fail.astype(int).diff().fillna(0) == 1)[0]:
         j = i
         while j < len(d) and fail.iloc[j]: j += 1
-        if j - i < 2: continue
-        seg = d.iloc[i:j]
-        rows_all.append(dict(case=case, start=d['datetime'].iloc[i], dur_min=j - i, q_gen=seg['Q_gen_m3h'].mean(), surplus=seg['Q_gen_m3h'].mean() - 60,
-                             pt_max=seg['PT101A_max_kPag'].max(), opened=bool(seg['PV_open_frac'].sum() > 0), vent_m3=seg['Q_PV_m3h'].sum() / 60,
+        if j - i < 20 or j >= len(d): continue
+        full = np.where(d['V_holder_gas_m3'].iloc[i:j].to_numpy() >= 499.95)[0]
+        k = i + (int(full[0]) if len(full) else 0)
+        t_dem = d['datetime'].iloc[k] - pd.Timedelta(minutes=1)          # 1-min records are stamped at the end of the minute
+        t_rel = d['datetime'].iloc[j] - pd.Timedelta(minutes=float(d['flare_on_frac'].iloc[j]))
+        seg = d.iloc[i:j + 1]
+        q = seg['Q_gen_m3h'].mean()
+        rows_all.append(dict(case=case, demand=t_dem, relight=t_rel, dur_min=(t_rel - t_dem).total_seconds() / 60, q_gen=q, surplus=q - 60,
+                             pt_max=seg['PT101A_max_kPag'].max(), opened=bool(seg['Q_PV_m3h'].sum() > 0), vent_m3=seg['Q_PV_m3h'].sum() / 60,
                              q_thr_30min=60 + (5.05 - pop - 0.11) / (K_FULL * 0.5)))
 r = pd.DataFrame(rows_all); r.to_csv('out/onoff_f100_failures.csv', index=False, float_format='%.2f')
-print(r.groupby(['case', 'opened']).agg(n=('start', 'size'), q_gen_mean=('q_gen', 'mean'), q_gen_min=('q_gen', 'min'), q_gen_max=('q_gen', 'max'), pt_max=('pt_max', 'max')).round(2))
+print(r.groupby(['case', 'opened']).agg(n=('demand', 'size'), q_gen_mean=('q_gen', 'mean'), q_gen_min=('q_gen', 'min'), q_gen_max=('q_gen', 'max'), pt_max=('pt_max', 'max')).round(2))
