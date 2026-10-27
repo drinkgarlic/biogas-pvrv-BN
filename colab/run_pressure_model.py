@@ -2,7 +2,7 @@
 """
 One-command driver for the 1-s pressure model, reproducing the runs used in the study.
 
-    python colab/run_pressure_model.py                 # everything, full year (19 one-year runs + 9 event scans)
+    python colab/run_pressure_model.py                 # everything, full year (25 one-year runs + 9 event scans)
     python colab/run_pressure_model.py --quick         # same workflow on the first 30 days (a few minutes with numba)
     python colab/run_pressure_model.py --stages onoff  # only the on/off 9-case stage (+ its summary figures)
     python colab/run_pressure_model.py --jobs 4        # run the independent year simulations 4 at a time
@@ -13,7 +13,8 @@ Stages (in order)
                                                plus the Case 1 sensitivities (min. opening 0 / 25 %, absolute set pressure)
     figs     make_figs.py                      figures + summary_base.csv / summary_stop.csv
     full100  run_full100.py (4 runs) + sum_full100.py      holder kept full, pressure-controlled flare, PFD 0.05 (and 0 for Case 1)
-    onoff    run_onoff.py (12 runs) + sum_onoff.py + fig_episode.py   consumer and flare on/off, flare start 100 / 80 / 60 %
+    onoff    run_onoff.py (18 runs) + sum_onoff.py + fig_episode.py   consumer and flare on/off, flare start 100 / 80 / 60 %,
+                                               PFD 0.05 and PFD 0 (the PFD 0 years are the BN input series, see make_onoff_inputs.py)
 
 Outputs land in pressure_model/out/ and pressure_model/fig/. Run times: with numba a one-year run takes well under a
 minute after the first compilation; in pure Python it takes 12-25 minutes, so use --quick first.
@@ -68,7 +69,7 @@ def main():
         parallel([['run_full100.py', '1', '0.05'], ['run_full100.py', '2', '0.05'], ['run_full100.py', '3', '0.05'], ['run_full100.py', '1', '0.0']], a.jobs, env)
         run(['sum_full100.py'], env)
     if 'onoff' in stages:
-        jobs = [['run_onoff.py', str(c), f, '0.05'] for c in (1, 2, 3) for f in ('1.0', '0.8', '0.6')] + [['run_onoff.py', '1', f, '0.0'] for f in ('1.0', '0.8', '0.6')]
+        jobs = [['run_onoff.py', str(c), f, '0.05'] for c in (1, 2, 3) for f in ('1.0', '0.8', '0.6')] + [['run_onoff.py', str(c), f, '0.0'] for c in (1, 2, 3) for f in ('1.0', '0.8', '0.6')]
         parallel(jobs, a.jobs, env)
         run(['sum_onoff.py'], env)
         run(['fig_episode.py'], env)

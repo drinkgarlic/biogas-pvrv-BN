@@ -26,7 +26,7 @@ main = pd.concat([r[(r.variant == 'retry30') & (r.case == c) & (r.f_on == f)] fo
 fig = plt.figure(figsize=(14, 9)); gs = fig.add_gridspec(2, 2, hspace=0.55, wspace=0.25, height_ratios=[1.1, 1])
 a = fig.add_subplot(gs[0, :]); stacked(a, main)
 a.set_ylabel('PVRV openings (per year)'); a.legend(loc='lower left', bbox_to_anchor=(0, 1.0), ncol=5, fontsize=7.5)
-a.set_title('on/off operation, 9-case BN (v4): expected annual openings by initiating event — automatic retry 30 min, ignition failure 0.05, day/night operator response', loc='left', color=INK, fontweight='bold', pad=24)
+a.set_title('on/off operation, 9-case BN (v4.3): expected annual openings by initiating event — automatic retry 30 min, ignition failure 0.05, day/night operator response', loc='left', color=INK, fontweight='bold', pad=24)
 a.axvspan(2.5, 8.5, color=C[2], alpha=0.05, lw=0); a.text(5.5, main.openings.max() * 0.8, 'flare start 80 % / 60 %: demand and downstream-stop branches = 0, residual 1.2~1.3 per year', ha='center', fontsize=8, color=INK2)
 b = fig.add_subplot(gs[1, 0]); stacked(b, main[main.f_on < 1.0], ylim=1.6, fmt='{:.2f}')
 b.set_ylabel('per year'); b.set_title('flare start 80 / 60 % zoomed: residual initiating events unrelated to the flare', loc='left', color=INK, fontweight='bold')
@@ -47,12 +47,28 @@ bnv = [float(main[(main.case == c) & (main.f_on == f)].open_demand.iloc[0]) for 
 pmv = [float(pm[(pm.case == c) & (np.isclose(pm.f_on, f))].pv_episodes.iloc[0]) for c, f in order]
 bnx = [float(main[(main.case == c) & (main.f_on == f)].vent_demand.iloc[0]) for c, f in order]
 pmx = [float(pm[(pm.case == c) & (np.isclose(pm.f_on, f))].vent_m3.iloc[0]) for c, f in order]
-for a, bv, pv, t, yl in [(ax[0], bnv, pmv, 'opening episodes (per year)', 'per year'), (ax[1], bnx, pmx, 'vented volume (m³/year)', 'm³/year')]:
-    a.bar(x - 0.18, bv, 0.36, color=C[0], label='BN v4 demand branch (expected value)'); a.bar(x + 0.18, pv, 0.36, color=C[1], label='1-s pressure model (one random realisation)')
-    for xi, v in zip(x - 0.18, bv): a.text(xi, v + max(bv + pv) * 0.012, f'{v:.0f}' if v >= 1 else f'{v:.2f}', ha='center', fontsize=7.5, color=C[0])
-    for xi, v in zip(x + 0.18, pv): a.text(xi, v + max(bv + pv) * 0.012, f'{v:.0f}', ha='center', fontsize=7.5, color=C[1])
-    a.set_xticks(x); a.set_xticklabels(labels, fontsize=7.5); a.set_ylabel(yl); a.legend(loc='lower left', bbox_to_anchor=(0, 1.0), ncol=2, fontsize=7.5)
-    a.set_title(f'PVRV {t} caused by ignition failures: BN vs 1-s model', loc='left', color=INK, fontweight='bold', pad=22)
+# BN without the operator response (automatic retries only) = the condition of the 1-s model; same input series (v4.3)
+import copy, pv_bn as _bnv
+nov, nox = [], []
+for c, f in order:
+    if f < 1.0: nov.append(0.0); nox.append(0.0); continue
+    prm = copy.deepcopy(_bnv.PARAMS); prm['f_on']['v'] = f; prm['t_retry_h']['v'] = 0.5; prm['n_retry']['v'] = 4; prm['p_hard']['v'] = 0.0; prm['pressure_backup']['v'] = False
+    tag = f'onoff_c{c}_f{int(round(f * 100))}'; prm['fill_series']['v'] = f'fill_hourly_{tag}.csv'; prm['demand_series']['v'] = f'flare_demands_{tag}.csv'
+    prm['R_day']['v'] = {2.5: 1.0}; prm['R_night']['v'] = {2.5: 1.0}
+    d_ = _bnv.run_year(c, _bnv.load_inputs(prm=prm), prm); nov.append(float(d_.p_demand.sum())); nox.append(float(d_.v_demand.sum()))
+print('BN demand branch without operator (100 %):', [round(v, 2) for v in nov[:3]], 'per year,', [round(v) for v in nox[:3]], 'm3')
+w = 0.27
+for a, bv, nv, pv, t, yl in [(ax[0], bnv, nov, pmv, '(a) openings caused by ignition failures', 'per year'), (ax[1], bnx, nox, pmx, '(b) vented volume of those openings', 'm³/year')]:
+    a.bar(x - w, bv, w, color=C[0], label='BN demand branch, with operator response (expected)'); a.bar(x, nv, w, color='#9cc3ee', label='BN, retries only (expected)')
+    a.bar(x + w, pv, w, color=C[1], label='1-s pressure model (one random realisation)')
+    top = max(bv + nv + pv)
+    for xs, vs, col, integer in ((x - w, bv, C[0], False), (x, nv, '#5f8fc4', False), (x + w, pv, C[1], True)):
+        for xi, v in zip(xs, vs):
+            if v >= 0.05: a.text(xi, v + top * 0.012, f'{v:.0f}' if (v >= 10 or integer) else f'{v:.1f}', ha='center', fontsize=6.5, color=col)
+    a.set_xticks(x); a.set_xticklabels(labels, fontsize=7.5); a.set_ylabel(yl)
+    a.set_title(t, loc='left', color=INK, fontweight='bold', pad=8)
+h_, l_ = ax[0].get_legend_handles_labels(); fig.legend(h_, l_, loc='lower center', bbox_to_anchor=(0.5, 0.97), ncol=3, fontsize=8)
+fig.suptitle('BN demand branch vs 1-s pressure model, both run on the same 1-s input series (v4.3)', x=0.01, y=1.06, ha='left', color=INK, fontweight='bold')
 fig.savefig('fig/bn_vs_pressure_onoff.png', dpi=150, bbox_inches='tight'); plt.close(fig)
 
 # --- Case 1 weekly profile (three flare-start fill levels), stacked by initiating event

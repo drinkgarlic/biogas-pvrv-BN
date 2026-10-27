@@ -9,7 +9,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 def base_prm(fo):
     prm = copy.deepcopy(bn.PARAMS)
     prm['f_on']['v'] = fo; prm['t_retry_h']['v'] = 0.5; prm['n_retry']['v'] = 4; prm['p_hard']['v'] = 0.0; prm['pressure_backup']['v'] = False
-    tag = f'onoff_f{int(round(fo*100))}'
+    tag = f'onoff_c1_f{int(round(fo*100))}'                       # Case 1 series from the 1-s model (v4.3)
     prm['fill_series']['v'] = f'fill_hourly_{tag}.csv'; prm['demand_series']['v'] = f'flare_demands_{tag}.csv'
     return prm
 

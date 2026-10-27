@@ -5,8 +5,11 @@ One-command driver for the Bayesian-network package.
     python colab/run_bayesian_network.py              # v4 on/off 9-case BN + sensitivity + figures (about one minute)
     python colab/run_bayesian_network.py --v3         # also the v3 proportional-flare BN, its tornado / DAG / profile figures and the buffer-band study
     python colab/run_bayesian_network.py --weather    # also the severe-weather scenarios (needs the pressure model; several minutes)
+    python colab/run_bayesian_network.py --inputs     # first rebuild the nine input series from pressure_model/out (needs the PFD 0 on/off runs)
 
 Stages
+    inputs   make_onoff_inputs.py   (optional) hourly fill + flare start times from the 1-s model years without ignition failures;
+                             the shipped bayesian_network/fill_hourly_onoff_c*_f*.csv / flare_demands_onoff_c*_f*.csv were made this way
     v4       run_onoff9.py   nine cases x three flare-recovery variants  -> out/bn_onoff_9cases.csv, out/bn_hourly_*.csv.gz, out/bn_cpt_*.csv
              sens_v4.py      tornado inputs for Case 1 at flare start 100 % and 80 %
              fig_onoff9.py   breakdown / variant / 1-s comparison / weekly figures (uses pressure_model/out/onoff_summary.csv if present,
@@ -36,8 +39,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--v3', action='store_true', help='also run the v3 (proportional flare) BN and its figures')
     ap.add_argument('--weather', action='store_true', help='also run the severe-weather scenarios')
+    ap.add_argument('--inputs', action='store_true', help='rebuild the input series from pressure_model/out first (make_onoff_inputs.py)')
     a = ap.parse_args()
     os.makedirs(os.path.join(BN, 'out'), exist_ok=True); os.makedirs(os.path.join(BN, 'fig'), exist_ok=True)
+    if a.inputs:
+        run('make_onoff_inputs.py')
     run('run_onoff9.py')
     run('sens_v4.py')
     run('fig_onoff9.py')

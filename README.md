@@ -16,7 +16,7 @@ Two questions are answered, one by each package.
 | `pressure_model/` | *When* does the PVRV open, given production, holder fill, weather and downstream behaviour? | Lumped ideal-gas model, 1-s time step, one year (31.5 million steps) | < 1 min per year with numba, 12–25 min in pure Python |
 | `bayesian_network/` | *How often* per year, given uncertain initiating events, flare reliability and operator response? | One-hour-slice Bayesian network with exact enumeration, physics taken from the pressure model | about one minute for all nine cases |
 
-Headline result: with the holder kept full (flare start at 100 %) the expected number of PVRV openings is 83 / 18 / 2.9 per year for operating pressures of 4.0 / 3.0 / 2.0 kPag, almost all of them caused by flare ignition failures. Starting the flare at 80 % fill or lower removes those openings entirely; what remains is 1.3–1.4 per year from events that do not involve the flare (condensate, freezing, foam, a stuck vent valve). Both tools agree on the ignition-failure branch: applied to the failures the 1-s simulation actually drew, the BN response functions open exactly the same 80 / 21 / 3 of them. The BN expectations are 81.3 / 16.1 / 1.3 with the operator response, and 81.6 / 17.4 / 2.2 without it (the 1-s model has no operator); the rest of the gap is the luck of one random year, in which three of the six double failures fell on high-production hours.
+Headline result: with the holder kept full (flare start at 100 %) the expected number of PVRV openings is 79 / 17 / 2.8 per year for operating pressures of 4.0 / 3.0 / 2.0 kPag, almost all of them caused by flare ignition failures. Starting the flare at 80 % fill or lower removes those openings entirely; what remains is 1.3–1.4 per year from events that do not involve the flare (condensate, freezing, foam, a stuck vent valve). The BN runs on the hourly holder fill and the flare start times of the 1-s model itself (a year without ignition failures), so both tools see the same holder and the same 1,997–2,050 flare demands a year. They agree on the ignition-failure branch: applied to the failures the 1-s simulation actually drew, the BN response functions open exactly the same 80 / 21 / 3 of them. The BN expectations are 77.2 / 15.5 / 1.3 with the operator response and 77.5 / 16.8 / 2.1 without it (the 1-s model has no operator); the rest of the gap is the luck of one random year — 81 ignition failures fell above the Case 1 30-min threshold where 76.7 were expected, 18 above the Case 2 threshold where 13.6 were expected.
 
 ![nine on/off cases: holder fill and PVRV openings](results/figures/onoff_9cases_fill_pv.png)
 
@@ -48,11 +48,12 @@ biogas-pvrv-BN/
 ├── bayesian_network/                                 package 2: Bayesian network
 │   ├── physics.py             closed-form response functions calibrated on package 1
 │   ├── pv_bn.py               nodes, parameters with sources, per-slice inference, annual aggregation, CPT export
+│   ├── make_onoff_inputs.py   hourly fill + flare start times of the 9 cases from the 1-s model runs without ignition failures (v4.3)
 │   ├── run_onoff9.py          the 9 cases (3 operating pressures x 3 flare-start levels) x 3 flare-recovery variants
 │   ├── sens_v4.py             one-at-a-time sensitivity (tornado inputs)
 │   ├── fig_onoff9.py          figures, including the comparison with package 1
 │   ├── make_v3_inputs.py, bn_sens_figs.py, buffer_band.py, crit_weather.py   earlier (v3) analyses, kept for completeness
-│   ├── fill_hourly_onoff_f*.csv, flare_demands_onoff_f*.csv                   operating-model inputs of the 9 cases
+│   ├── fill_hourly_onoff_c*_f*.csv, flare_demands_onoff_c*_f*.csv             inputs of the 9 cases, taken from the 1-s model (make_onoff_inputs.py)
 │   └── fill_hourly_use60.csv, flare_demands_use60.csv                         v3 operating-model inputs
 ├── colab/
 │   ├── run_pressure_model.py      one-command driver (all stages, or --quick)
@@ -124,7 +125,7 @@ The gas side (two headspaces, the piping and the inside of the inner membrane) a
 
 **`run_full100.py <case> <pfd>`** and **`sum_full100.py`** — holder kept full with a flare that starts at `p_op + 0.5` kPa and stops at `p_op + 0.1` (`const` mode). This is the regime reported in the literature to give frequent PVRV emissions, and it does: 1,294 opening episodes a year in Case 1 with PFD 0.05.
 
-**`run_onoff.py <case> <f_on> <pfd>`**, **`sum_onoff.py`**, **`fig_episode.py`** — the nine-case study (`onoff` mode). `f_on` ∈ {1.0, 0.8, 0.6}, flare stop at `f_on − 0.15`, consumer stop at 10 % fill and restart at 30 %, PFD 0.05 with a 30-min automatic retry. The summary script computes opening episodes (gaps > 10 min start a new episode), fill statistics, flare starts and failures, consumer stops, vented CH₄, and the air-side counts. `fig_episode.py` also writes `out/onoff_f100_failures.csv`, which lists every ignition failure with the gas production at the time and whether it led to an opening.
+**`run_onoff.py <case> <f_on> <pfd>`**, **`sum_onoff.py`**, **`fig_episode.py`** — the nine-case study (`onoff` mode). `f_on` ∈ {1.0, 0.8, 0.6}, flare stop at `f_on − 0.15`, consumer stop at 10 % fill and restart at 30 %, PFD 0.05 with a 30-min automatic retry. The summary script computes opening episodes (gaps > 10 min start a new episode), fill statistics, flare starts and failures, consumer stops, vented CH₄, and the air-side counts. `fig_episode.py` also writes `out/onoff_f100_failures.csv`, which lists every ignition failure with the gas production at the time and whether it led to an opening. The same nine cases are also run with PFD 0 (`run_onoff.py <case> <f_on> 0.0`); those failure-free years are the input series of the Bayesian network (v4.3).
 
 ### 4.3 What the model found
 
@@ -148,7 +149,7 @@ The year is cut into 8,760 one-hour slices. In each slice the evidence (producti
 
 ### 5.2 How the code is organised
 
-**`physics.py`** — `margin_eff(case)`, `t_full_h()`, `t_rigid_h()`, `t_iso_h()`, `wv_stuck_ratchet()` and `operating_year()`. The last one is a 1-min operating model (consumer + flare logic on the holder) that produces the hourly fill series and the flare demand times the BN needs; with `fmin=1.0, on=f_on, off=f_on-0.15, L_derate=0, L_stop=0.10, L_resume=0.30` it reproduces the on/off regime of package 1 (2,103 flare demands a year, mean fill 86 / 68 / 49 %).
+**`physics.py`** — `margin_eff(case)`, `t_full_h()`, `t_rigid_h()`, `t_iso_h()`, `wv_stuck_ratchet()` and `operating_year()`. The last one is a simple 1-min operating model (consumer + flare logic on the holder). Up to v4.2 it produced the input series of the nine cases; it counts the holder as 500 reference m³ without converting the gas at 2–4 kPag, so it demanded the flare 2,103 times a year where the 1-s model demands it 1,997–2,050 times. Since v4.3 the nine cases read the 1-s model's own series (`make_onoff_inputs.py`); `operating_year()` is kept for the v3 analyses.
 
 **`pv_bn.py`** — the network.
 
@@ -156,12 +157,15 @@ The year is cut into 8,760 one-hour slices. In each slice the evidence (producti
 
   **v4.1 (2026-10-21).** The probability that foam reaching the outlet also fouls the PVRV (`p_pv_fouled`) is 0.1 instead of 0.3 — the same value the QRA uses for its seal-failure chain, so that both packages read one parameter (sensitivity 0.03–0.3); the foam branch of the 80 % cases rises from 0.42 to 0.54 openings a year. The stuck-PVRV node now carries a sourced value: NOG-070 (2020) Table A.2.1 gives λ_DU = 1.1 × 10⁻⁶ /h for a PSV that fails to open before the test pressure, i.e. PFD = 4.8 × 10⁻³ per demand with an annual proof test (`p_pv_stuck`); the shared header is protected 1oo2 with β = 0.1 (`beta_pv`), an isolated digester by one valve. `summarize()` and `bn_onoff_9cases.csv` report the resulting overpressure frequency (0.047 / 0.015 / 0.007 per year at 100 %, 0.006 at 80 %) next to the foam-fouling overpressure (0.06 per year). These are the initiating frequencies of the no-relief chain in [biogas-pvrv-qra](https://github.com/drinkgarlic/biogas-pvrv-qra).
   **v4.2 (2026-10-26).** The flare demand at a 100 % start level was evaluated at 99.9 % fill (`min(f_on + b, 0.999)`), so every demand-branch opening time carried the 1–2 min needed to fill the last 0.5 m³. The 1-s model demands the flare when the holder is just full, and the BN now does the same (`min(f_on + b, 1.0)`). The 100 % results rise by 2 % (Case 1: 81.5 → 83.1 openings, 752 → 794 m³); Case 2 and 3 hardly move because their 30-min thresholds sit in the sparse upper tail of production. The 80 % and 60 % cases are unchanged.
+  **v4.3 (2026-10-27).** Same conditions for both packages. The hourly holder fill and the flare start times now come from the 1-s model run without ignition failures (`run_onoff.py <case> <f_on> 0.0`, all nine cases), converted by `make_onoff_inputs.py`; the BN adds the failures and their consequences itself. The former series from `physics.operating_year()` ignored the pressure conversion of the holder inventory and the Case dependence, giving 2,103–2,105 demands a year for every case instead of 1,997 / 2,017 / 2,037 (100 %), 2,004 / 2,021 / 2,043 (80 %) and 2,010 / 2,028 / 2,050 (60 %). Openings at 100 % fall by 2–5 % (Case 1: 83.1 → 79.0, Case 2: 17.8 → 17.2, Case 3: 2.9 → 2.8); the 80 % and 60 % base results do not change at the reported precision. The parameters and the code of the network are unchanged.
 - `load_inputs()`: production, methane fraction, atmospheric pressure, fill series and demand series, day/night and winter flags.
 - `slice_inference()`: the heart of the model. Builds the recovery-time distribution by combining the operator response with the geometric retry sequence, then evaluates, for each initiating event, the probability that the opening time is shorter than the recovery time, together with the expected vented volume and duration and the list of open intervals.
 - `run_year()`: loops over the slices, multiplies by the initiating-event probabilities and, with `occupancy=True`, spreads the open intervals over the hours to obtain the state probability (the probability that the valve is open at a given hour, as opposed to the probability that an event starting in that hour will eventually open it).
 - `summarize()` and `cpt_tables()`: annual totals per initiating event, the probability of at least one opening, chattering cycles, and conditional probability tables aggregated by production class, fill class and day/night — the form you would paste into a BN tool.
 
-**`run_onoff9.py`** — generates the on/off input series for `f_on` = 1.0 / 0.8 / 0.6, then runs the nine cases for three flare-recovery variants: `retry30` (automatic retry every 30 min, the base), `hard30` (30 % of failures are hard faults), `manual` (no automatic retry). Writes `out/bn_onoff_9cases.csv` (27 rows), the hourly files with state probabilities, and the CPTs.
+**`make_onoff_inputs.py`** — reads `pressure_model/out/onoff_case{c}_f{fo}_pfd0_1min.csv.gz` and writes `fill_hourly_onoff_c{c}_f{fo}.csv` (hourly mean fill, actual gas volume / 500 m³) and `flare_demands_onoff_c{c}_f{fo}.csv` (start times in s). The shipped CSVs were produced this way, so the BN runs without the pressure model.
+
+**`run_onoff9.py`** — reads the nine input series, then runs the nine cases for three flare-recovery variants: `retry30` (automatic retry every 30 min, the base), `hard30` (30 % of failures are hard faults), `manual` (no automatic retry). Writes `out/bn_onoff_9cases.csv` (27 rows), the hourly files with state probabilities, and the CPTs.
 
 **`sens_v4.py`** — thirteen one-at-a-time sensitivities for Case 1 at `f_on` 100 % and 80 %. **`fig_onoff9.py`** — the figures, including the comparison with the 1-s model.
 
@@ -173,11 +177,11 @@ Expected PVRV openings per year, base variant (automatic retry 30 min, PFD 0.05)
 
 | Flare start | Case 1 (4.0 kPag) | Case 2 (3.0) | Case 3 (2.0) | Dominant branch |
 |---|---|---|---|---|
-| 100 % | 83.1 | 17.8 | 2.9 | ignition failure on flare demand (81.3 / 16.1 / 1.3) |
+| 100 % | 79.0 | 17.2 | 2.8 | ignition failure on flare demand (77.2 / 15.5 / 1.3) |
 | 80 % | 1.40 | 1.35 | 1.31 | blockage 0.80, foam 0.54, stuck vent valve ≤ 0.06 |
 | 60 % | 1.40 | 1.35 | 1.31 | identical to 80 % — the residual branches do not see the fill level |
 
-If 30 % of the failures cannot be cleared by a retry the 80 % figure becomes 8.7 per year; with no automatic retry at all it is 25.6. In other words the conclusion "80 % or lower gives no flare-related openings" is conditional on ignition failures being transient, and the sensitivity tables in `out/bn_sens_v4_case1_f*.csv` quantify by how much.
+If 30 % of the failures cannot be cleared by a retry the 80 % figure becomes 8.4 per year; with no automatic retry at all it is 24.6. In other words the conclusion "80 % or lower gives no flare-related openings" is conditional on ignition failures being transient, and the sensitivity tables in `out/bn_sens_v4_case1_f*.csv` quantify by how much.
 
 ---
 
@@ -192,8 +196,8 @@ pressure_model:  run_base.py {1,2,3}
                  scan_stop.py {1,2,3} {0.85,0.5};  scan_stop.py 1 0.85 0.0;  scan_stop.py 1 0.85 0.25;  scan_stop.py 1 0.85 0.10 abs
                  make_figs.py
                  run_full100.py {1,2,3} 0.05;  run_full100.py 1 0.0;  sum_full100.py
-                 run_onoff.py {1,2,3} {1.0,0.8,0.6} 0.05;  run_onoff.py 1 {1.0,0.8,0.6} 0.0;  sum_onoff.py;  fig_episode.py
-bayesian_network: run_onoff9.py;  sens_v4.py;  fig_onoff9.py   (optionally make_v3_inputs.py, pv_bn.py, bn_sens_figs.py, buffer_band.py, crit_weather.py)
+                 run_onoff.py {1,2,3} {1.0,0.8,0.6} 0.05;  run_onoff.py {1,2,3} {1.0,0.8,0.6} 0.0;  sum_onoff.py;  fig_episode.py
+bayesian_network: make_onoff_inputs.py (optional, regenerates the shipped input series);  run_onoff9.py;  sens_v4.py;  fig_onoff9.py   (optionally make_v3_inputs.py, pv_bn.py, bn_sens_figs.py, buffer_band.py, crit_weather.py)
 ```
 
 All random draws use a fixed seed, so the numbers in `results/` should come back to the last digit on any machine. The reference tables kept in `results/` are `summary_base.csv`, `summary_stop.csv`, `full100_summary.csv`, `onoff_summary.csv`, `onoff_f100_failures.csv`, `bn_onoff_9cases.csv`, `bn_sens_v4_case1_f100.csv`, `bn_sens_v4_case1_f80.csv` and `bn_summary.json`, next to the key figures.
@@ -211,7 +215,7 @@ Read these before quoting a number.
 - **Several BN priors are judgement.** Downstream stops, condensate and shut-off-valve blockages, vent-valve sticking and the operator response distribution have no public frequency data; sources and the word "assumption" are attached to each value in `PARAMS`, and the tornado figures show how far each one can move the result.
 - **Initiating events are independent and the slices are static.** Common causes (a cold snap freezing the vent valve, the flare and a drain line at once) are only partly captured by the winter node, and a slice does not change the prior of the next one.
 - **One year, one site.** The PyADM1ODE production and the Pohang weather are a single realisation; other feedstocks, holder sizes or climates need their own input files, which is exactly what `data/` is for.
-- **No validation against measured valve openings at this plant.** The cross-check is between the two models (81.3 / 16.1 / 1.3 vs 80 / 21 / 3) and against the orders of magnitude reported for European plants, not against site measurements.
+- **No validation against measured valve openings at this plant.** The cross-check is between the two models (77.2 / 15.5 / 1.3 vs 80 / 21 / 3, on the same input series) and against the orders of magnitude reported for European plants, not against site measurements.
 
 ---
 

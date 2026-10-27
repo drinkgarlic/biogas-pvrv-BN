@@ -1,32 +1,83 @@
 {
- "onoff_f100": {
+ "onoff_c1_f100": {
+  "case": 1,
   "f_on": 1.0,
-  "flare_starts": 2103,
-  "flare_share": 0.2871006685237213,
-  "stop_h": 194.83333333338052,
-  "fill_mean": 0.8579496475325541,
-  "fill_p5": 0.2218443774305458,
-  "fill_p95": 0.9777674093749991,
-  "share_full": 0.0004566731362027629
+  "flare_starts": 1997,
+  "fill_mean": 0.8558318607305937,
+  "fill_p5": 0.21669000000000002,
+  "fill_p95": 0.9789,
+  "share_full": 0.0014840182648401827
  },
- "onoff_f80": {
+ "onoff_c2_f100": {
+  "case": 2,
+  "f_on": 1.0,
+  "flare_starts": 2017,
+  "fill_mean": 0.8567133675799087,
+  "fill_p5": 0.222295,
+  "fill_p95": 0.9782049999999999,
+  "share_full": 0.0007990867579908676
+ },
+ "onoff_c3_f100": {
+  "case": 3,
+  "f_on": 1.0,
+  "flare_starts": 2037,
+  "fill_mean": 0.8569296575342465,
+  "fill_p5": 0.22018000000000001,
+  "fill_p95": 0.978,
+  "share_full": 0.0013698630136986301
+ },
+ "onoff_c1_f80": {
+  "case": 1,
   "f_on": 0.8,
-  "flare_starts": 2103,
-  "flare_share": 0.2880842102163515,
-  "stop_h": 195.15000000004744,
-  "fill_mean": 0.6751349077839943,
-  "fill_p5": 0.20578729178264354,
-  "fill_p95": 0.777886736149941,
+  "flare_starts": 2004,
+  "fill_mean": 0.675403299086758,
+  "fill_p5": 0.220495,
+  "fill_p95": 0.7785,
   "share_full": 0.0
  },
- "onoff_f60": {
+ "onoff_c2_f80": {
+  "case": 2,
+  "f_on": 0.8,
+  "flare_starts": 2021,
+  "fill_mean": 0.6745634132420092,
+  "fill_p5": 0.2072,
+  "fill_p95": 0.778,
+  "share_full": 0.0
+ },
+ "onoff_c3_f80": {
+  "case": 3,
+  "f_on": 0.8,
+  "flare_starts": 2043,
+  "fill_mean": 0.6758939497716895,
+  "fill_p5": 0.21959499999999998,
+  "fill_p95": 0.7781049999999999,
+  "share_full": 0.0
+ },
+ "onoff_c1_f60": {
+  "case": 1,
   "f_on": 0.6,
-  "flare_starts": 2105,
-  "flare_share": 0.28833355881448314,
-  "stop_h": 197.0166666667156,
-  "fill_mean": 0.49416087536013825,
-  "fill_p5": 0.20617562627336478,
-  "fill_p95": 0.5778542389276139,
+  "flare_starts": 2010,
+  "fill_mean": 0.4944056506849316,
+  "fill_p5": 0.2172,
+  "fill_p95": 0.5785,
+  "share_full": 0.0
+ },
+ "onoff_c2_f60": {
+  "case": 2,
+  "f_on": 0.6,
+  "flare_starts": 2028,
+  "fill_mean": 0.4942177511415525,
+  "fill_p5": 0.2119,
+  "fill_p95": 0.5781,
+  "share_full": 0.0
+ },
+ "onoff_c3_f60": {
+  "case": 3,
+  "f_on": 0.6,
+  "flare_starts": 2050,
+  "fill_mean": 0.49461812785388126,
+  "fill_p5": 0.219395,
+  "fill_p95": 0.578,
   "share_full": 0.0
  }
 }
