@@ -2,7 +2,7 @@
 
 | File | Content | Source |
 |---|---|---|
-| `ADM1_hourly_1to9_Q200_6000m3_ffOTS1.csv` | Hourly PyADM1ODE output for the Pohang food-waste plant: feed 200 m³/d, digester volume 6,000 m³ (two digesters), interval-end timestamps 2020-11-01 01:00 to 2021-11-01 00:00. 34 columns: gas flows (wet and dry, 20 °C), CH₄ / CO₂ / H₂ / H₂O fractions, H₂S and NH₃ equivalents, pH, VFA, TAN. | PyADM1ODE (Gaida) run with the monthly feedstock composition of the plant; see Appendix III of the report |
+| `ADM1_hourly_1to9_Q200_6000m3_ffOTS1.csv` | Hourly PyADM1ODE output for the hypothetical plant, fed with the monthly composition of food waste collected in Pohang: feed 200 m³/d, digester volume 6,000 m³ (two digesters), interval-end timestamps 2020-11-01 01:00 to 2021-11-01 00:00. 34 columns: gas flows (wet and dry, 20 °C), CH₄ / CO₂ / H₂ / H₂O fractions, H₂S and NH₃ equivalents, pH, VFA, TAN. | PyADM1ODE (Gaida) run with the monthly feedstock composition of the plant; see Appendix III of the report |
 | `kma_asos138_pohang_hourly_pressure_kPa.csv` | Hourly station pressure in kPa, columns `datetime`, `p_kPa`, 8,736 rows (25 missing hours are interpolated by the loaders). | Korea Meteorological Administration, ASOS site 138 (Pohang), converted from the public hourly download (`일시`, `현지 기압`) |
 
 Both loaders (`pressure_model.load_inputs`, `pv_bn.load_inputs`) interpolate the hourly knots linearly; the 1-s model does this inside the kernel, so no second-resolution files are needed.
